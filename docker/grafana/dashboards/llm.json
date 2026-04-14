@@ -1,0 +1,51 @@
+{
+  "title": "Bazar AI — LLM",
+  "uid": "bazar-llm",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "LLM Requests",
+      "type": "logs",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 10 },
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "{job=\"docker\"} | json | channel=`llm`",
+          "legendFormat": ""
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "LLM Errors",
+      "type": "logs",
+      "gridPos": { "x": 0, "y": 10, "w": 24, "h": 8 },
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "{job=\"docker\"} | json | channel=`llm` | level=`error`",
+          "legendFormat": ""
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "LLM Activity Rate",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 18, "w": 24, "h": 8 },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum(rate({job=\"docker\"} | json | channel=`llm` [5m]))",
+          "legendFormat": "llm requests/s"
+        }
+      ]
+    }
+  ]
+}

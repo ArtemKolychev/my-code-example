@@ -1,0 +1,406 @@
+stages:
+  - prepare
+  - lint
+  - test
+  - build
+  - deploy
+
+variables:
+  REGISTRY: registry.gitlab.com/artemkolychev/bazar-ai
+  DEPLOY_DIR: /var/www/bazar-ai
+  DOCKER_TLS_CERTDIR: "/certs"
+
+# ── Shared templates ──────────────────────────────────────────────────────
+
+.docker-build:
+  image: docker:27
+  services:
+    - docker:27-dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+
+
+# ── PREPARE ───────────────────────────────────────────────────────────────
+
+shared-types:build:
+  stage: prepare
+  image: node:20-bookworm-slim
+  cache:
+    key:
+      files:
+        - src/shared-types/pnpm-lock.yaml
+    paths:
+      - src/shared-types/node_modules/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      changes:
+        paths:
+          - src/shared-types/**/*
+          - src/clicker/**/*
+          - src/ai-agent/**/*
+          - src/cz-cars-parser/**/*
+          - docker/clicker/Dockerfile
+          - docker/ai-agent/Dockerfile
+        compare_to: main
+  before_script:
+    - corepack enable && corepack prepare pnpm@latest --activate
+  script:
+    - cd src/shared-types
+    - pnpm install --frozen-lockfile
+    - pnpm build
+  artifacts:
+    paths:
+      - src/shared-types/dist/
+    expire_in: 2 hours
+
+# ── LINT ──────────────────────────────────────────────────────────────────
+
+be:lint:
+  stage: lint
+  image: $REGISTRY/php:latest
+  variables:
+    COMPOSER_CACHE_DIR: "$CI_PROJECT_DIR/.composer-cache"
+  cache:
+    key:
+      files:
+        - src/be/composer.lock
+    paths:
+      - src/be/vendor/
+      - .composer-cache/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      changes:
+        paths:
+          - src/be/**/*
+          - docker/php/Dockerfile
+        compare_to: main
+  script:
+    - cd src/be
+    - composer install --no-interaction -q --prefer-dist --no-scripts
+    - vendor/bin/php-cs-fixer fix --dry-run --diff
+    - vendor/bin/phpstan analyse --memory-limit=512M
+
+clicker:lint:
+  stage: lint
+  image: node:20-bookworm-slim
+  needs:
+    - job: shared-types:build
+      optional: true
+      artifacts: true
+  cache:
+    key:
+      files:
+        - src/clicker/yarn.lock
+    paths:
+      - .yarn-cache/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      changes:
+        paths:
+          - src/clicker/**/*
+          - src/shared-types/**/*
+        compare_to: main
+  script:
+    - yarn --cwd src/clicker install --frozen-lockfile --cache-folder "$CI_PROJECT_DIR/.yarn-cache"
+    - yarn --cwd src/clicker lint
+
+ai-agent:lint:
+  stage: lint
+  image: node:20-bookworm-slim
+  needs:
+    - job: shared-types:build
+      optional: true
+      artifacts: true
+  cache:
+    key:
+      files:
+        - src/ai-agent/pnpm-lock.yaml
+    paths:
+      - src/ai-agent/node_modules/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      changes:
+        paths:
+          - src/ai-agent/**/*
+          - src/shared-types/**/*
+          - src/cz-cars-parser/**/*
+        compare_to: main
+  before_script:
+    - corepack enable && corepack prepare pnpm@latest --activate
+    - cd src/cz-cars-parser && npm install && npm run build && cd -
+  script:
+    - cd src/ai-agent
+    - pnpm install --frozen-lockfile
+    - pnpm lint
+
+# ── TEST ──────────────────────────────────────────────────────────────────
+
+be:test:
+  stage: test
+  image: $REGISTRY/php:latest
+  services:
+    - name: postgres:16-alpine
+      alias: db
+  variables:
+    POSTGRES_DB: bazar
+    POSTGRES_USER: bazar
+    POSTGRES_PASSWORD: bazar
+    DB_HOST: db
+    DB_PORT: "5432"
+    DB_DATABASE: bazar
+    DB_USERNAME: bazar
+    DB_PASSWORD: bazar
+    APP_ENV: test
+    MESSENGER_TRANSPORT_DSN: "sync://"
+    COMPOSER_CACHE_DIR: "$CI_PROJECT_DIR/.composer-cache"
+  cache:
+    key:
+      files:
+        - src/be/composer.lock
+    paths:
+      - src/be/vendor/
+      - .composer-cache/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      changes:
+        paths:
+          - src/be/**/*
+          - docker/php/Dockerfile
+        compare_to: main
+  script:
+    - cd src/be
+    - composer install --no-interaction -q --prefer-dist --no-scripts
+    - echo "APP_ENV=test" > .env
+    - php bin/console doctrine:schema:create --env=test
+    - vendor/bin/phpunit
+
+clicker:test:unit:
+  stage: test
+  image: node:20-bookworm-slim
+  needs:
+    - job: shared-types:build
+      optional: true
+      artifacts: true
+  cache:
+    key:
+      files:
+        - src/clicker/yarn.lock
+    paths:
+      - .yarn-cache/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+      changes:
+        paths:
+          - src/clicker/**/*
+          - src/shared-types/**/*
+        compare_to: main
+  script:
+    - yarn --cwd src/clicker install --frozen-lockfile --cache-folder "$CI_PROJECT_DIR/.yarn-cache"
+    - yarn --cwd src/clicker test
+
+
+# ── BUILD ─────────────────────────────────────────────────────────────────
+
+build:php:
+  extends: .docker-build
+  stage: build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - src/be/**/*
+        - docker/php/**/*
+  script:
+    - |
+      TAG="$REGISTRY/php:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+      docker pull "$REGISTRY/php:latest" || true
+      docker build --target prod --cache-from "$REGISTRY/php:latest" \
+        -f docker/php/Dockerfile -t "$TAG" .
+      docker push "$TAG"
+      if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+        docker tag "$TAG" "$REGISTRY/php:latest"
+        docker push "$REGISTRY/php:latest"
+      fi
+
+build:clicker:
+  extends: .docker-build
+  stage: build
+  needs:
+    - job: shared-types:build
+      optional: true
+      artifacts: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - src/clicker/**/*
+        - src/shared-types/**/*
+        - docker/clicker/**/*
+  script:
+    - |
+      TAG="$REGISTRY/clicker:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+      docker pull "$REGISTRY/clicker:dev" || true
+      docker pull "$REGISTRY/clicker:latest" || true
+      docker build --target dev --cache-from "$REGISTRY/clicker:dev" \
+        -f docker/clicker/Dockerfile -t "$REGISTRY/clicker:dev" src/
+      docker push "$REGISTRY/clicker:dev"
+      docker build --target prod --cache-from "$REGISTRY/clicker:dev" --cache-from "$REGISTRY/clicker:latest" \
+        -f docker/clicker/Dockerfile -t "$TAG" src/
+      docker push "$TAG"
+      if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+        docker tag "$TAG" "$REGISTRY/clicker:latest"
+        docker push "$REGISTRY/clicker:latest"
+      fi
+
+build:ai-agent:
+  extends: .docker-build
+  stage: build
+  needs:
+    - job: shared-types:build
+      optional: true
+      artifacts: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - src/ai-agent/**/*
+        - src/shared-types/**/*
+        - src/cz-cars-parser/**/*
+        - docker/ai-agent/**/*
+  script:
+    - |
+      TAG="$REGISTRY/ai-agent:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+      docker pull "$REGISTRY/ai-agent:dev" || true
+      docker pull "$REGISTRY/ai-agent:latest" || true
+      docker build --target dev --cache-from "$REGISTRY/ai-agent:dev" \
+        -f docker/ai-agent/Dockerfile -t "$REGISTRY/ai-agent:dev" src/
+      docker push "$REGISTRY/ai-agent:dev"
+      docker build --target prod --cache-from "$REGISTRY/ai-agent:dev" --cache-from "$REGISTRY/ai-agent:latest" \
+        -f docker/ai-agent/Dockerfile -t "$TAG" src/
+      docker push "$TAG"
+      if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+        docker tag "$TAG" "$REGISTRY/ai-agent:latest"
+        docker push "$REGISTRY/ai-agent:latest"
+      fi
+
+build:nginx:
+  extends: .docker-build
+  stage: build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - docker/nginx/**/*
+        - src/be/public/**/*
+  script:
+    - |
+      TAG="$REGISTRY/nginx:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+      docker pull "$REGISTRY/nginx:latest" || true
+      docker build --target prod --cache-from "$REGISTRY/nginx:latest" \
+        --build-arg HOST="$HOST" --build-arg BE_PORT="$BE_PORT" \
+        -f docker/nginx/Dockerfile -t "$TAG" .
+      docker push "$TAG"
+      if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+        docker tag "$TAG" "$REGISTRY/nginx:latest"
+        docker push "$REGISTRY/nginx:latest"
+      fi
+
+build:frontend:
+  extends: .docker-build
+  stage: build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - src/frontend/**/*
+        - docker/frontend/**/*
+  script:
+    - |
+      TAG="$REGISTRY/frontend:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+      docker pull "$REGISTRY/frontend:latest" || true
+      docker build --target prod --cache-from "$REGISTRY/frontend:latest" \
+        -f docker/frontend/Dockerfile -t "$TAG" src/
+      docker push "$TAG"
+      if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+        docker tag "$TAG" "$REGISTRY/frontend:latest"
+        docker push "$REGISTRY/frontend:latest"
+      fi
+
+build:vnc:
+  extends: .docker-build
+  stage: build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - docker/vnc/**/*
+  script:
+    - |
+      TAG="$REGISTRY/vnc:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+      docker pull "$REGISTRY/vnc:latest" || true
+      docker build --cache-from "$REGISTRY/vnc:latest" -t "$TAG" docker/vnc/
+      docker push "$TAG"
+      if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+        docker tag "$TAG" "$REGISTRY/vnc:latest"
+        docker push "$REGISTRY/vnc:latest"
+      fi
+
+build:proxy:
+  extends: .docker-build
+  stage: build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - docker/proxy/**/*
+  script:
+    - |
+      TAG="$REGISTRY/proxy:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA"
+      docker pull "$REGISTRY/proxy:latest" || true
+      docker build --cache-from "$REGISTRY/proxy:latest" -t "$TAG" docker/proxy/
+      docker push "$TAG"
+      if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+        docker tag "$TAG" "$REGISTRY/proxy:latest"
+        docker push "$REGISTRY/proxy:latest"
+      fi
+
+# ── DEPLOY ────────────────────────────────────────────────────────────────
+
+deploy:production:
+  stage: deploy
+  image: alpine:3.19
+  needs:
+    - job: build:php
+      optional: true
+    - job: build:clicker
+      optional: true
+    - job: build:ai-agent
+      optional: true
+    - job: build:nginx
+      optional: true
+    - job: build:frontend
+      optional: true
+    - job: build:vnc
+      optional: true
+    - job: build:proxy
+      optional: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: on_success
+  environment:
+    name: production
+    url: https://bazarai.visaczech.cz
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - |
+      printf '%s' "$SSH_PRIVATE_KEY" | base64 -d | tr -d '\r' > /tmp/deploy_key
+      echo "" >> /tmp/deploy_key
+      chmod 600 /tmp/deploy_key
+      ssh-add /tmp/deploy_key
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+    - printf 'Host bazarai\n  HostName %s\n  User %s\n  StrictHostKeyChecking yes\n' "$SSH_HOST" "$SSH_USER" > ~/.ssh/config
+  script:
+    - |
+      ssh bazarai "
+        set -e
+        cd $DEPLOY_DIR
+        git pull origin $CI_DEFAULT_BRANCH
+        make prod
+        make prod-migrate
+        docker image prune -a --force --filter 'until=48h'
+      "

@@ -1,0 +1,86 @@
+services:
+
+  php:
+    pull_policy: build
+    build:
+      args:
+        xDEBUG_CLIENT_HOST: ${XDEBUG_CLIENT_HOST:-host.docker.internal}
+        xDEBUG_CLIENT_PORT: ${XDEBUG_CLIENT_PORT:-9003}
+    environment:
+      PHP_IDE_CONFIG: serverName=localhost
+    volumes:
+      - ./src/be:/var/www/html
+    command: >
+      sh -c "composer install && php-fpm"
+
+  worker:
+    pull_policy: build
+    volumes:
+      - ./src/be:/var/www/html
+    command: >
+      sh -c "composer install && php bin/console messenger:consume local_async clicker_events
+        --time-limit=3600 --memory-limit=128M -vv"
+
+  clicker:
+    pull_policy: build
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src/clicker:/app
+      - ./src/eslint.config.base.mjs:/eslint.config.base.mjs:ro
+      - x11-socket:/tmp/.X11-unix
+    environment:
+      BROWSERLESS_URL: ${BROWSERLESS_URL}
+    command: >
+      sh -c "yarn install && yarn start:dev"
+
+  ai-agent:
+    pull_policy: build
+    volumes:
+      - ./src/ai-agent:/app
+      - ./src/cz-cars-parser:/cz-cars-parser
+      - ./src/eslint.config.base.mjs:/eslint.config.base.mjs:ro
+    command: >
+      sh -c "cd /cz-cars-parser && npm install && npm run build && cd /app && pnpm install && pnpm start:dev"
+
+  frontend:
+    pull_policy: build
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./src/frontend:/app
+      - ./src/eslint.config.base.mjs:/eslint.config.base.mjs:ro
+      - /app/node_modules
+      - /app/.next
+    command: sh -c "npm install && npm run dev"
+
+  nginx:
+    pull_policy: build
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./src/be:/var/www/html
+
+  db:
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  vnc:
+    pull_policy: build
+    ports:
+      - "5900:5900"
+      - "6080:6080"
+
+  loki:
+    ports:
+      - "3100:3100"
+
+  grafana:
+    ports:
+      - "3200:3000"

@@ -1,0 +1,730 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Articles {% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .article-preview {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .article-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .article-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+
+        .form-container {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 30px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>Edit Articles</h1>
+                    <a href="{{ path('app_list_articles') }}" class="btn btn-secondary">Back to Articles</a>
+
+                    {% if availablePlatforms|length > 0 %}
+                        {% set user = app.user %}
+                        {% if not user.name or not user.address or not user.zip or not user.phone %}
+                            <a href="{{ path('app_user_profile') }}" class="btn btn-warning">
+                                Vyplňte svůj profil pro publikování
+                            </a>
+                        {% else %}
+                            {% for platform in availablePlatforms %}
+                                <a href="{{ path('app_post_articles', {'ids': forms|map(data => data.article.id)|join('-'), 'platform': platform.value}) }}"
+                                   class="btn btn-secondary"
+                                   id="btn-publish-{{ platform.value }}">Publish to {{ platform.name }}</a>
+                            {% endfor %}
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for message in app.flashes('warning') %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for message in app.flashes('profile_incomplete') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ message }} – <a href="{{ path('app_user_profile') }}">přejít na profil</a>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for data in forms %}
+                    <div class="row" id="article-{{ data.article.id }}">
+                        <div class="col-md-6">
+                            <div class="article-preview">
+                                <h3>Current Article</h3>
+                                <h4>{{ data.article.title }}</h4>
+                                <p>{{ data.article.description }}</p>
+
+                                {% set articleSubmissions = submissions[data.article.id] ?? {} %}
+                                {% set isPublished = articleSubmissions|filter(s => s.status in ['completed', 'deleting'])|length > 0 %}
+
+                                <div class="mb-3">
+                                    <strong>Published Status:</strong>
+                                    <span class="badge {{ isPublished ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ isPublished ? 'Published' : 'Not Published' }}
+                                    </span>
+                                </div>
+
+                                {% if data.article.withdrawnAt %}
+                                    <div class="mb-3">
+                                        <span class="text-muted small">
+                                            Staženo z bazaru: {{ data.article.withdrawnAt|date('d.m.Y H:i') }}
+                                        </span>
+                                    </div>
+                                {% endif %}
+
+                                {% if isPublished %}
+                                    <div class="mb-3">
+                                        <form method="post"
+                                              action="{{ path('app_withdraw_article', {'id': data.article.id}) }}"
+                                              id="withdraw-form-{{ data.article.id }}"
+                                              onsubmit="return confirmWithdraw(event, {{ data.article.id }})">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('withdraw_article') }}">
+                                            <button type="submit" class="btn btn-warning btn-sm">
+                                                Stáhnout z bazaru
+                                            </button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                                {% if articleSubmissions|length > 0 %}
+                                    <div class="mb-3">
+                                        <strong>Stav publikování:</strong>
+                                        {% for platformValue, sub in articleSubmissions %}
+                                            <div class="mt-1">
+                                                <span class="text-muted small">{{ platformValue|capitalize }}:</span>
+                                                {% if sub.status == 'completed' %}
+                                                    <span class="badge bg-success">Publikováno</span>
+                                                    {% set articleUrl = sub.resultData.articleUrl ?? sub.resultData.adUrl ?? null %}
+                                                    {% if articleUrl %}
+                                                        <a href="{{ articleUrl }}" target="_blank" rel="noopener noreferrer" class="small">Zobrazit</a>
+                                                    {% endif %}
+                                                {% elseif sub.status == 'failed' %}
+                                                    <span class="badge bg-danger">Chyba</span>
+                                                    {% if sub.errorData %}
+                                                        <small class="text-muted d-block">{{ sub.errorData|json_encode }}</small>
+                                                    {% endif %}
+                                                {% elseif sub.status == 'waiting_input' %}
+                                                    <span class="badge bg-warning text-dark">Čeká na vstup</span>
+                                                {% elseif sub.status == 'withdrawn' or sub.status == 'deleting' %}
+                                                    <span class="badge bg-secondary">Staženo</span>
+                                                {% elseif sub.status == 'processing' %}
+                                                    <span class="badge bg-info text-dark">Zpracovává se...</span>
+                                                    <small id="progress-msg-{{ data.article.id }}-{{ platformValue }}" class="text-muted d-block">
+                                                        {% if sub.progressData is defined and sub.progressData %}
+                                                            {% set pct = sub.progressData.totalSteps > 0 ? ((sub.progressData.stepIndex + 1) / sub.progressData.totalSteps * 100)|round : 0 %}
+                                                            {{ pct }}% — {{ sub.progressData.message }}
+                                                        {% endif %}
+                                                    </small>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Čeká...</span>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+
+                                {% if data.article.publicResultData %}
+                                    {% set resultData = data.article.getPublicResultData() %}
+                                    {% if resultData.resource is defined and resultData.resource starts with 'http' %}
+                                        <div class="mb-3">
+                                            <strong>Odkaz na inzerát:</strong>
+                                            <a href="{{ resultData.resource }}" target="_blank" rel="noopener noreferrer">
+                                                {{ resultData.resource }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    <div class="mb-3">
+                                        <strong>Public Result Data:</strong>
+                                        <div class="mt-2 p-2 bg-light border rounded">
+
+                                            <pre class="mb-0" id="public-result-data-{{ data.article.id }}">
+                                                {{ resultData|json_encode(constant('JSON_PRETTY_PRINT')) }}
+                                            </pre>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                {% if data.article.images|length > 0 %}
+                                    <div class="data.article-images">
+                                        {% for image in data.article.images %}
+                                            <img src="{{ image.link }}" alt="{{ data.article.title }}"
+                                                 class="article-image">
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">No images attached to this article.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-container">
+                                <h3>Edit Article</h3>
+
+                                {{ form_start(data.form) }}
+                                <div class="mb-3">
+                                    {{ form_label(data.form.title, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(data.form.title) }}
+                                    {{ form_errors(data.form.title) }}
+                                </div>
+
+                                <div class="mb-3">
+                                    {{ form_label(data.form.price, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    <div class="d-flex align-items-center gap-2">
+                                        {{ form_widget(data.form.price) }}
+                                        {% if not data.article.price %}
+                                            <div id="price-loading-{{ data.article.id }}" class="spinner-border spinner-border-sm text-secondary" role="status" title="AI počítá cenu...">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    {{ form_errors(data.form.price) }}
+                                    {% if data.article.priceReasoning %}
+                                        <div id="price-reasoning-{{ data.article.id }}" class="mt-1 p-2 bg-light border rounded small text-muted">
+                                            <strong>AI:</strong> {{ data.article.priceReasoning }}
+                                        </div>
+                                    {% endif %}
+                                    {% if data.article.priceSources %}
+                                        <div id="price-sources-{{ data.article.id }}" class="mt-1 small">
+                                            <strong>Zdroje:</strong>
+                                            <ul class="mb-0 ps-3">
+                                                {% for source in data.article.priceSources %}
+                                                    <li><a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.name }}</a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="mb-3">
+                                    {{ form_label(data.form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                                    {{ form_widget(data.form.description) }}
+                                    {{ form_errors(data.form.description) }}
+                                </div>
+
+                                {# Category & Condition #}
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        {{ form_label(data.form.category, null, {'label_attr': {'class': 'form-label'}}) }}
+                                        {{ form_widget(data.form.category, {'attr': {'onchange': 'updateCategoryFields(' ~ data.article.id ~ ', this.value)'}}) }}
+                                        {{ form_errors(data.form.category) }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ form_label(data.form.condition, null, {'label_attr': {'class': 'form-label'}}) }}
+                                        {{ form_widget(data.form.condition) }}
+                                        {{ form_errors(data.form.condition) }}
+                                    </div>
+                                </div>
+
+                                {# Dynamic meta fields container #}
+                                <div id="meta-fields-{{ data.article.id }}" class="mb-3">
+                                    {# Populated by JS based on selected category #}
+                                </div>
+
+                                <!-- Image Management Section -->
+                                <div class="mb-3">
+                                    <label class="form-label">Images</label>
+
+                                    <!-- Existing Images -->
+                                    {% if data.article.images|length > 0 %}
+                                        <div class="existing-images mb-3">
+                                            <h6>Current Images:</h6>
+                                            <div class="row">
+                                                {% for image in data.article.images %}
+                                                    <div class="col-md-3 mb-2" id="image-{{ image.id }}">
+                                                        <div class="card">
+                                                            <img src="{{ image.link }}" class="card-img-top" style="height: 120px; object-fit: cover;" alt="Article Image">
+                                                            <div class="card-body p-2 d-flex gap-1">
+                                                                <button type="button" class="btn btn-secondary btn-sm flex-fill"
+                                                                        onclick="rotateImage({{ image.id }})"
+                                                                        title="Otočit o 90° doprava">
+                                                                    Otočit
+                                                                </button>
+                                                                <button type="button" class="btn btn-danger btn-sm flex-fill"
+                                                                        onclick="deleteImage({{ image.id }}, {{ data.article.id }})"
+                                                                        data-image-id="{{ image.id }}"
+                                                                        data-article-id="{{ data.article.id }}">
+                                                                    <i class="fas fa-trash"></i> Delete
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    <!-- Add New Images -->
+                                    <div class="mb-3">
+                                        {{ form_label(data.form.images, null, {'label_attr': {'class': 'form-label'}}) }}
+                                        {{ form_widget(data.form.images) }}
+                                        {{ form_errors(data.form.images) }}
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    {{ form_widget(data.form.save) }}
+                                    <a href="{{ path('app_list_articles') }}"
+                                       class="btn btn-outline-secondary">Cancel</a>
+                                </div>
+                                {{ form_end(data.form) }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        const categoryFieldDefs = {{ categoryFields|json_encode|raw }};
+
+        const forms_data = {};
+        {% for data in forms %}
+        forms_data[{{ data.article.id }}] = {
+            meta: {{ (data.article.meta ?? {})|json_encode|raw }},
+            category: '{{ data.article.category ? data.article.category.value : '' }}',
+        };
+        {% endfor %}
+
+        function updateCategoryFields(articleId, categoryValue) {
+            const container = document.getElementById(`meta-fields-${articleId}`);
+            if (!container) return;
+
+            const fields = categoryFieldDefs[categoryValue] || [];
+            if (fields.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            // Get current meta values
+            const article = forms_data[articleId];
+            const meta = article?.meta || {};
+
+            let html = '<h6>Parametry</h6><div class="row">';
+            for (const field of fields) {
+                const value = meta[field.key] ?? '';
+                const requiredMark = field.required ? ' <span class="text-danger">*</span>' : '';
+
+                html += `<div class="col-md-6 mb-2">`;
+                html += `<label class="form-label">${field.label}${requiredMark}</label>`;
+
+                if (field.type === 'select' && field.options) {
+                    html += `<select class="form-select form-select-sm meta-field" data-article-id="${articleId}" data-key="${field.key}">`;
+                    html += `<option value="">—</option>`;
+                    for (const [optValue, optLabel] of Object.entries(field.options)) {
+                        const selected = value === optValue ? ' selected' : '';
+                        html += `<option value="${optValue}"${selected}>${optLabel}</option>`;
+                    }
+                    html += `</select>`;
+                } else {
+                    const inputType = field.type === 'number' ? 'number' : 'text';
+                    html += `<input type="${inputType}" class="form-control form-control-sm meta-field" data-article-id="${articleId}" data-key="${field.key}" value="${value}">`;
+                }
+
+                html += `</div>`;
+            }
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Initialize category fields and register submit handler after DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            for (const [articleId, artData] of Object.entries(forms_data)) {
+                if (artData.category) {
+                    updateCategoryFields(parseInt(articleId), artData.category);
+                }
+            }
+
+            // On form submit, collect meta fields into a hidden input
+            document.querySelectorAll('form[name^="edit_article_"]').forEach(form => {
+                form.addEventListener('submit', function() {
+                    const metaFields = this.querySelectorAll('.meta-field');
+                    const meta = {};
+                    metaFields.forEach(field => {
+                        const val = field.value.trim();
+                        if (val) meta[field.dataset.key] = field.type === 'number' ? Number(val) : val;
+                    });
+                    let hidden = this.querySelector('input[name="meta_fields"]');
+                    if (!hidden) {
+                        hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = 'meta_fields';
+                        this.appendChild(hidden);
+                    }
+                    hidden.value = JSON.stringify(meta);
+                });
+            });
+        });
+
+        function rotateImage(imageId) {
+            fetch(`/market/image/${imageId}/rotate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    const img = document.querySelector(`#image-${imageId} img`);
+                    const src = img.src.split('?')[0];
+                    img.src = src + '?t=' + Date.now();
+                    showMessage('Obrázek byl otočen.', 'success');
+                } else {
+                    throw new Error('Failed to rotate image');
+                }
+            })
+            .catch(error => {
+                console.error('Error rotating image:', error);
+                showMessage('Chyba při otáčení obrázku. Zkuste to znovu.', 'error');
+            });
+        }
+
+        function deleteImage(imageId, articleId) {
+            if (confirm('Are you sure you want to delete this image?')) {
+                fetch(`/market/image/${imageId}/delete`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById(`image-${imageId}`).remove();
+                        showMessage('Image deleted successfully!', 'success');
+                    } else {
+                        throw new Error('Failed to delete image');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting image:', error);
+                    showMessage('Error deleting image. Please try again.', 'error');
+                });
+            }
+        }
+
+        // Article status checker
+        document.addEventListener('DOMContentLoaded', function () {
+            const articleIds = [
+                {% for data in forms %}
+                    {{ data.article.id }}{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ];
+
+            // Track current known values to detect changes
+            const knownState = {};
+            {% for data in forms %}
+            knownState[{{ data.article.id }}] = {
+                price: {{ data.article.price ?? 'null' }},
+                priceReasoning: {{ data.article.priceReasoning|json_encode|raw }},
+                priceSources: {{ data.article.priceSources|json_encode|raw }},
+                publicResultData: {{ data.article.getPublicResultData()|json_encode|raw }},
+                pendingInput: {{ data.article.pendingInput|json_encode|raw }},
+            };
+            {% endfor %}
+
+            async function checkArticleStatus(articleId) {
+                try {
+                    const response = await fetch(`/market/article/${articleId}`, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    if (!response.ok) return;
+                    const data = await response.json();
+                    const known = knownState[articleId];
+
+                    // Update price field if changed
+                    if (data.price !== known.price) {
+                        known.price = data.price;
+                        const priceInput = document.querySelector(`#article-${articleId} input[name*="[price]"]`);
+                        if (priceInput && !priceInput.matches(':focus')) {
+                            priceInput.value = data.price ?? '';
+                        }
+                        if (data.price) {
+                            const spinner = document.getElementById(`price-loading-${articleId}`);
+                            if (spinner) spinner.remove();
+                        }
+                    }
+
+                    // Update price reasoning if changed
+                    if (data.priceReasoning !== known.priceReasoning) {
+                        known.priceReasoning = data.priceReasoning;
+                        let reasoningEl = document.getElementById(`price-reasoning-${articleId}`);
+                        if (data.priceReasoning) {
+                            if (reasoningEl) {
+                                reasoningEl.textContent = data.priceReasoning;
+                            } else {
+                                const priceBlock = document.querySelector(`#article-${articleId} input[name*="[price]"]`).closest('.mb-3');
+                                const div = document.createElement('div');
+                                div.id = `price-reasoning-${articleId}`;
+                                div.className = 'mt-1 p-2 bg-light border rounded small text-muted';
+                                div.innerHTML = `<strong>AI:</strong> ${data.priceReasoning}`;
+                                priceBlock.appendChild(div);
+                            }
+                        }
+                        // Remove spinner when AI has responded (even if price is 0 or reasoning is empty)
+                        if (!data.price) {
+                            const spinner = document.getElementById(`price-loading-${articleId}`);
+                            if (spinner) spinner.remove();
+                        }
+                    }
+
+                    // Update price sources if changed
+                    if (JSON.stringify(data.priceSources) !== JSON.stringify(known.priceSources)) {
+                        known.priceSources = data.priceSources;
+                        let sourcesEl = document.getElementById(`price-sources-${articleId}`);
+                        if (data.priceSources && data.priceSources.length > 0) {
+                            const items = data.priceSources.map(s => `<li><a href="${s.url}" target="_blank" rel="noopener noreferrer">${s.name}</a></li>`).join('');
+                            if (sourcesEl) {
+                                sourcesEl.querySelector('ul').innerHTML = items;
+                            } else {
+                                const priceBlock = document.querySelector(`#article-${articleId} input[name*="[price]"]`).closest('.mb-3');
+                                const div = document.createElement('div');
+                                div.id = `price-sources-${articleId}`;
+                                div.className = 'mt-1 small';
+                                div.innerHTML = `<strong>Zdroje:</strong><ul class="mb-0 ps-3">${items}</ul>`;
+                                priceBlock.appendChild(div);
+                            }
+                        }
+                    }
+
+                    // Show/hide SMS input form when pendingInput changes
+                    if (JSON.stringify(data.pendingInput) !== JSON.stringify(known.pendingInput)) {
+                        known.pendingInput = data.pendingInput;
+                        if (data.pendingInput) {
+                            showSmsInputForm(articleId, data.pendingInput);
+                        } else {
+                            removeSmsInputForm(articleId);
+                        }
+                    }
+
+                    // Update progress messages for processing submissions
+                    if (data.submissions) {
+                        for (const [platform, sub] of Object.entries(data.submissions)) {
+                            if (sub.status === 'processing' && sub.progressData) {
+                                const el = document.getElementById(`progress-msg-${articleId}-${platform}`);
+                                if (el) {
+                                    const pct = sub.progressData.totalSteps > 0
+                                        ? Math.round((sub.progressData.stepIndex + 1) / sub.progressData.totalSteps * 100)
+                                        : 0;
+                                    el.textContent = `${pct}% — ${sub.progressData.message}`;
+                                }
+                            }
+                        }
+                    }
+
+                    // Reload if publicResultData changed (published status update)
+                    const currentResultData = JSON.stringify(data.publicResultData);
+                    const knownResultData = JSON.stringify(known.publicResultData);
+                    if (currentResultData !== knownResultData) {
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error(`Error checking status for article ${articleId}:`, error);
+                }
+            }
+
+            function showSmsInputForm(articleId, pendingInput) {
+                removeSmsInputForm(articleId);
+                const preview = document.querySelector(`#article-${articleId} .article-preview`);
+                if (!preview) return;
+                const div = document.createElement('div');
+                div.id = `sms-input-${articleId}`;
+                div.className = 'alert alert-warning mt-3';
+
+                if (pendingInput.inputType === 'meta_fields' && pendingInput.fields) {
+                    let fieldsHtml = '';
+                    for (const [key, def] of Object.entries(pendingInput.fields)) {
+                        fieldsHtml += `
+                            <div class="mb-2">
+                                <label class="form-label mb-1">${def.label}</label>
+                                <input type="${def.type || 'text'}" class="form-control form-control-sm meta-field-input"
+                                       data-field-key="${key}" placeholder="${def.label}">
+                            </div>
+                        `;
+                    }
+                    div.innerHTML = `
+                        <strong>${pendingInput.inputPrompt || 'Vyplňte povinné údaje'}</strong>
+                        ${fieldsHtml}
+                        <button class="btn btn-primary mt-2" onclick="submitMetaFields(${articleId})">Odeslat</button>
+                    `;
+                } else {
+                    div.innerHTML = `
+                        <strong>${pendingInput.inputPrompt || 'Zadejte SMS kód'}</strong>
+                        <div class="input-group mt-2">
+                            <input type="text" id="sms-code-${articleId}" class="form-control" placeholder="SMS kód">
+                            <button class="btn btn-primary" onclick="submitSmsCode(${articleId})">Odeslat</button>
+                        </div>
+                    `;
+                }
+
+                preview.appendChild(div);
+            }
+
+            function removeSmsInputForm(articleId) {
+                const el = document.getElementById(`sms-input-${articleId}`);
+                if (el) el.remove();
+            }
+
+            window.submitSmsCode = async function(articleId) {
+                const codeInput = document.getElementById(`sms-code-${articleId}`);
+                const code = codeInput ? codeInput.value.trim() : '';
+                if (!code) return;
+                try {
+                    await fetch(`/market/article/${articleId}/input`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code })
+                    });
+                    removeSmsInputForm(articleId);
+                } catch (error) {
+                    console.error('Error submitting SMS code:', error);
+                }
+            };
+
+            window.submitMetaFields = async function(articleId) {
+                const container = document.getElementById(`sms-input-${articleId}`);
+                if (!container) return;
+                const inputs = container.querySelectorAll('.meta-field-input');
+                const fields = {};
+                let hasEmpty = false;
+                inputs.forEach(input => {
+                    const key = input.dataset.fieldKey;
+                    const val = input.value.trim();
+                    if (!val) hasEmpty = true;
+                    fields[key] = input.type === 'number' ? Number(val) : val;
+                });
+                if (hasEmpty) {
+                    showMessage('Vyplňte prosím všechna pole.', 'error');
+                    return;
+                }
+                try {
+                    const resp = await fetch(`/market/article/${articleId}/input`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ fields })
+                    });
+                    if (resp.ok) {
+                        removeSmsInputForm(articleId);
+                        showMessage('Údaje uloženy, publikování pokračuje.', 'success');
+                    } else {
+                        const data = await resp.json();
+                        showMessage(data.error || 'Chyba při odesílání.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error submitting meta fields:', error);
+                    showMessage('Chyba při odesílání údajů.', 'error');
+                }
+            };
+
+            function checkAllArticles() {
+                articleIds.forEach(checkArticleStatus);
+            }
+
+            // Show SMS form for articles that already have pendingInput on page load
+            articleIds.forEach(function(id) {
+                const known = knownState[id];
+                if (known && known.pendingInput) {
+                    showSmsInputForm(id, known.pendingInput);
+                }
+            });
+
+            if (articleIds.length > 0) {
+                const intervalId = setInterval(checkAllArticles, 5000);
+                window.addEventListener('beforeunload', () => clearInterval(intervalId));
+            }
+        });
+
+        function confirmWithdraw(event, articleId) {
+            event.preventDefault();
+            if (!confirm('Opravdu chcete stáhnout inzerát z bazaru?')) {
+                return false;
+            }
+            const form = document.getElementById(`withdraw-form-${articleId}`);
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    showMessage('Žádost o stažení inzerátu z bazaru byla odeslána.', 'success');
+                    form.querySelector('button[type="submit"]').disabled = true;
+                } else {
+                    showMessage(data.error || 'Chyba při stahování inzerátu.', 'error');
+                }
+            })
+            .catch(() => {
+                showMessage('Chyba při stahování inzerátu. Zkuste to znovu.', 'error');
+            });
+            return false;
+        }
+
+        // Helper function to show messages
+        function showMessage(message, type) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const alertHtml = `
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+
+            // Insert the alert at the top of the container
+            const container = document.querySelector('.container');
+            const firstChild = container.firstElementChild;
+            const alertDiv = document.createElement('div');
+            alertDiv.innerHTML = alertHtml;
+            container.insertBefore(alertDiv.firstElementChild, firstChild.nextSibling);
+        }
+    </script>
+{% endblock %}

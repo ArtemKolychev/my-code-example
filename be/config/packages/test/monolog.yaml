@@ -1,0 +1,4 @@
+monolog:
+    handlers:
+        loki:
+            type: 'null'

@@ -1,0 +1,190 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Podmínky použití – Bazar AI{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+
+            <h1 class="mb-1">Podmínky použití služby Bazar AI</h1>
+            <p class="text-muted mb-4">Poslední aktualizace: duben 2025</p>
+
+            <div class="alert alert-warning">
+                <strong>Důležité upozornění:</strong> Použití automatizačních nástrojů je na většině inzertních portálů
+                <strong>výslovně zakázáno</strong> jejich podmínkami použití. Uživatel bere na vědomí, že jeho účty na
+                těchto portálech mohou být zablokovány nebo trvale smazány. Provozovatel nenese za takové následky žádnou odpovědnost.
+            </div>
+
+            <hr class="my-4">
+
+            <h2>1. Základní ustanovení</h2>
+            <p>
+                Tyto podmínky použití (dále jen „Podmínky") upravují vztah mezi uživatelem (dále jen „Uživatel") a
+                provozovatelem služby Bazar AI (dále jen „Provozovatel") při užívání webové aplikace a souvisejících
+                služeb dostupných na tomto portálu (dále jen „Služba").
+            </p>
+            <p>
+                Registrací a/nebo užíváním Služby Uživatel <strong>bezpodmínečně a neodvolatelně</strong> potvrzuje, že
+                se s těmito Podmínkami seznámil, porozuměl jejich obsahu a souhlasí s jejich plným znění.
+                Pokud Uživatel s těmito Podmínkami nesouhlasí, není oprávněn Službu užívat.
+            </p>
+
+            <h2>2. Popis Služby</h2>
+            <p>
+                Bazar AI je asistenční nástroj, který usnadňuje správu inzerce na inzertních portálech třetích stran
+                (zejména bazos.cz, sbazar.cz, a podobné platformy, dále jen „Inzertní portály"). Služba využívá:
+            </p>
+            <ul>
+                <li>automatizaci webového prohlížeče (browser automation) pro interakci s Inzertními portály,</li>
+                <li>modely umělé inteligence a velké jazykové modely (LLM) třetích stran pro zpracování textu a obrázků.</li>
+            </ul>
+            <p>
+                Služba je poskytována <strong>pouze jako technický nástroj</strong>. Provozovatel není inzertním
+                portálem, zprostředkovatelem prodeje ani smluvní stranou žádných transakcí uskutečněných prostřednictvím
+                Inzertních portálů.
+            </p>
+
+            <h2>3. Odpovědnost Uživatele a riziko blokace</h2>
+            <p>
+                Uživatel bere na vědomí a výslovně souhlasí s tím, že:
+            </p>
+            <ol>
+                <li>
+                    <strong>Inzertní portály zakazují automatizaci.</strong> Podmínky většiny inzertních portálů
+                    výslovně zakazují používání automatizovaných nástrojů, botů, scraperů a jiných technologií
+                    pro automatické přidávání, editaci nebo mazání inzerátů.
+                </li>
+                <li>
+                    <strong>Uživatel nese výhradní odpovědnost</strong> za dodržování podmínek každého Inzertního
+                    portálu, na který prostřednictvím Služby přistupuje. Je povinností Uživatele si tyto podmínky
+                    před použitím Služby přečíst a vyhodnotit.
+                </li>
+                <li>
+                    <strong>Provozovatel nenese žádnou odpovědnost</strong> za zablokování, omezení přístupu,
+                    smazání účtu, ztrátu inzerátů, finanční škody ani jiné újmy vzniklé Uživateli v důsledku
+                    porušení podmínek Inzertních portálů, bez ohledu na to, zda k porušení došlo v přímé či
+                    nepřímé příčinné souvislosti s užíváním Služby.
+                </li>
+                <li>
+                    <strong>Uživatel užívá Službu výhradně na vlastní riziko.</strong> Provozovatel neposkytuje
+                    žádnou záruku, že použití Služby nebude mít za následek blokaci účtů Uživatele na Inzertních
+                    portálech.
+                </li>
+                <li>
+                    Uživatel je <strong>plně odpovědný za obsah</strong> veškerých inzerátů publikovaných
+                    prostřednictvím Služby, za jejich soulad s právními předpisy a s podmínkami příslušného
+                    Inzertního portálu.
+                </li>
+            </ol>
+
+            <h2>4. Zpracování dat pomocí umělé inteligence</h2>
+            <p>
+                Uživatel bere na vědomí, že za účelem poskytování Služby jsou jeho data (zejména texty inzerátů,
+                fotografie, popisy produktů a další obsah vložený do Služby) odesílána externím poskytovatelům
+                služeb umělé inteligence, zejména společnosti <strong>OpenAI, L.L.C.</strong> (provozovatel modelů
+                řady GPT) a dalším LLM poskytovatelům, a to za účelem:
+            </p>
+            <ul>
+                <li>analýzy a generování textu inzerátů,</li>
+                <li>rozpoznávání a klasifikace obrázků,</li>
+                <li>návrhů ceny a kategorie produktu.</li>
+            </ul>
+            <p>
+                Odesílání dat AI poskytovatelům je <strong>nezbytnou součástí fungování Služby</strong>. Uživatel
+                svou registrací a užíváním Služby výslovně souhlasí s tímto předáváním dat. Uživatel nesmí do
+                Služby vkládat data, jejichž sdílení s třetími stranami (vč. AI poskytovatelů) je zakázáno zákonem
+                nebo smlouvou.
+            </p>
+            <p>
+                Bližší informace o zpracování osobních údajů jsou uvedeny v
+                <a href="{{ path('app_privacy') }}">Zásadách ochrany osobních údajů</a>.
+            </p>
+
+            <h2>5. Omezení odpovědnosti Provozovatele</h2>
+            <p>
+                V maximálním rozsahu povoleném platnými právními předpisy Provozovatel:
+            </p>
+            <ul>
+                <li>
+                    <strong>neposkytuje žádné záruky</strong> (výslovné ani mlčky předpokládané) ohledně
+                    dostupnosti, spolehlivosti, přesnosti ani výsledků Služby;
+                </li>
+                <li>
+                    <strong>neodpovídá za přímé ani nepřímé škody</strong>, ušlý zisk, ztrátu dat, ztrátu
+                    příjmů, ztrátu goodwillu ani za jiné škody vzniklé v souvislosti s užíváním nebo
+                    nemožností užívání Služby;
+                </li>
+                <li>
+                    <strong>neodpovídá za jednání třetích stran</strong>, zejména Inzertních portálů nebo
+                    AI poskytovatelů;
+                </li>
+                <li>
+                    neodpovídá za výpadky, chyby, datové ztráty ani bezpečnostní incidenty způsobené mimo
+                    přiměřenou kontrolu Provozovatele (<em>force majeure</em>).
+                </li>
+            </ul>
+            <p>
+                Celková odpovědnost Provozovatele vůči Uživateli z jakéhokoli titulu je omezena na výši poplatků
+                skutečně uhrazených Uživatelem za Službu v posledních třech (3) měsících před vznikem škody.
+            </p>
+
+            <h2>6. Zakázané jednání</h2>
+            <p>Uživatel nesmí Službu použít k:</p>
+            <ul>
+                <li>publikování nezákonného, klamavého nebo podvodného obsahu,</li>
+                <li>porušování práv duševního vlastnictví třetích stran,</li>
+                <li>odesílání osobních údajů třetích osob bez jejich souhlasu,</li>
+                <li>obcházení bezpečnostních opatření Inzertních portálů způsoby, které přesahují funkce Služby,</li>
+                <li>dalšímu prodeji ani komerčnímu zpřístupnění přístupu ke Službě třetím osobám bez souhlasu Provozovatele.</li>
+            </ul>
+
+            <h2>7. Přístupové údaje</h2>
+            <p>
+                Uživatel je povinen chránit své přihlašovací údaje před neoprávněným přístupem a nesdílet je
+                s třetími osobami. Provozovatel nenese odpovědnost za újmy vzniklé v důsledku neoprávněného
+                užití účtu Uživatele třetí osobou.
+            </p>
+
+            <h2>8. Dostupnost Služby</h2>
+            <p>
+                Provozovatel vynakládá přiměřené úsilí k zajištění dostupnosti Služby, avšak nezaručuje
+                nepřetržitý ani bezchybný provoz. Provozovatel je oprávněn Službu kdykoli bez předchozího
+                upozornění omezit, pozastavit nebo ukončit.
+            </p>
+
+            <h2>9. Změny Podmínek</h2>
+            <p>
+                Provozovatel je oprávněn tyto Podmínky kdykoli jednostranně změnit. O změně Uživatele informuje
+                zveřejněním aktualizované verze na tomto místě, případně zasláním e-mailového upozornění.
+                Pokračuje-li Uživatel v užívání Služby po nabytí účinnosti změn, platí, že se změnami souhlasí.
+            </p>
+
+            <h2>10. Rozhodné právo a řešení sporů</h2>
+            <p>
+                Tyto Podmínky se řídí právem České republiky. Veškeré spory vyplývající z těchto Podmínek nebo
+                v souvislosti s nimi budou s konečnou platností rozhodnuty věcně a místně příslušným soudem v
+                České republice.
+            </p>
+
+            <h2>11. Kontakt</h2>
+            <p>
+                V případě dotazů k těmto Podmínkám nás kontaktujte prostřednictvím e-mailu uvedeného
+                v registračním formuláři nebo v aplikaci.
+            </p>
+
+            <hr class="my-4">
+            <p class="text-muted small">
+                Registrací do Služby Uživatel potvrzuje, že přečetl, porozuměl a souhlasí s těmito Podmínkami
+                a se <a href="{{ path('app_privacy') }}">Zásadami ochrany osobních údajů</a>.
+            </p>
+
+            <div class="mt-4">
+                <a href="{{ path('app_register') }}" class="btn btn-primary">Zpět na registraci</a>
+                <a href="{{ path('app_privacy') }}" class="btn btn-outline-secondary ms-2">Zásady ochrany osobních údajů</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

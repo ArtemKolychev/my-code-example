@@ -1,0 +1,318 @@
+services:
+
+  php:
+    image: registry.gitlab.com/artemkolychev/bazar-ai/php:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: ${APP_ENV}
+      args:
+        PUID: ${PUID:-1000}
+        PGID: ${PGID:-1000}
+    expose:
+      - ${BE_PORT}
+    networks:
+      - bazar-network
+    restart: unless-stopped
+    volumes:
+      - uploads_data:/var/www/html/public/uploads
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_SECRET: ${APP_SECRET}
+      APP_URL: ${APP_URL}
+      INTERNAL_APP_URL: ${INTERNAL_APP_URL:-http://nginx}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_ORGANIZATION: ${OPENAI_ORGANIZATION}
+      MESSENGER_TRANSPORT_DSN: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@${RABBITMQ_HOST}:${RABBITMQ_PORT}/%2f/messages
+      LOKI_URL: ${LOKI_URL:-http://loki:3100}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    hostname: rabbitmq
+    networks:
+      - bazar-network
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+      RABBITMQ_DEFAULT_VHOST: /
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - bazar-network
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  vnc:
+    image: registry.gitlab.com/artemkolychev/bazar-ai/vnc:${IMAGE_TAG:-latest}
+    build:
+      context: ./docker/vnc
+      dockerfile: Dockerfile
+    ipc: shareable
+    environment:
+      - DISPLAY=:99
+      - RESOLUTION=${VNC_RESOLUTION:-1920x1080x24}
+    networks:
+      - bazar-network
+    restart: unless-stopped
+    volumes:
+      - x11-socket:/tmp/.X11-unix
+    healthcheck:
+      test: ["CMD-SHELL", "test -S /tmp/.X11-unix/X99"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 5s
+
+  clicker:
+    image: registry.gitlab.com/artemkolychev/bazar-ai/clicker:${IMAGE_TAG:-latest}
+    build:
+      context: ./src
+      dockerfile: ../docker/clicker/Dockerfile
+      target: ${APP_ENV}
+    tty: true
+    ipc: service:vnc
+    expose:
+      - 3000
+    environment:
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
+      NODE_ENV: ${NODE_ENV}
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@${RABBITMQ_HOST}:${RABBITMQ_PORT}
+      DISPLAY: ":99"
+      RESOLUTION: ${VNC_RESOLUTION:-1920x1080x24}
+      CHROME_PATH: ${CHROME_PATH}
+      STAGEHAND_PROVIDER: ${STAGEHAND_PROVIDER}
+      STAGEHAND_MODEL: ${STAGEHAND_MODEL}
+      STAGEHAND_VERBOSE: ${STAGEHAND_VERBOSE}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_ORGANIZATION: ${OPENAI_ORGANIZATION}
+      LINKUP_API_KEY: ${LINKUP_API_KEY}
+      LOKI_URL: ${LOKI_URL:-http://loki:3100}
+      TWO_CAPTCHA_API_KEY: ${TWO_CAPTCHA_API_KEY}
+      PROXY_URLS: ${PROXY_URLS:-}
+      SEZNAM_TEST_LOGIN: ${SEZNAM_TEST_LOGIN:-}
+      SEZNAM_TEST_PASSWORD: ${SEZNAM_TEST_PASSWORD:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - bazar-network
+    restart: unless-stopped
+    volumes:
+      - x11-socket:/tmp/.X11-unix
+    depends_on:
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      vnc:
+        condition: service_healthy
+      proxy-relay:
+        condition: service_started
+
+  # Standalone SOCKS5 proxy (microsocks) running inside bazar-network.
+  # Clicker uses socks5://proxy-relay:8889 to route traffic.
+  # No Mac tunnel required — works standalone on the server.
+  proxy-relay:
+    image: registry.gitlab.com/artemkolychev/bazar-ai/proxy:${IMAGE_TAG:-latest}
+    build:
+      context: ./docker/proxy
+    networks:
+      - bazar-network
+    restart: unless-stopped
+
+  frontend:
+    image: registry.gitlab.com/artemkolychev/bazar-ai/frontend:${IMAGE_TAG:-latest}
+    build:
+      context: ./src
+      dockerfile: ../docker/frontend/Dockerfile
+      target: ${APP_ENV}
+    expose:
+      - 3003
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 3003
+    networks:
+      - bazar-network
+    restart: unless-stopped
+
+  ai-agent:
+    image: registry.gitlab.com/artemkolychev/bazar-ai/ai-agent:${IMAGE_TAG:-latest}
+    build:
+      context: ./src
+      dockerfile: ../docker/ai-agent/Dockerfile
+      target: ${APP_ENV}
+    expose:
+      - 3001
+    environment:
+      CI: "true"
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
+      NODE_ENV: ${NODE_ENV}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@${RABBITMQ_HOST}:${RABBITMQ_PORT}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      LINKUP_API_KEY: ${LINKUP_API_KEY}
+      LOKI_URL: ${LOKI_URL:-http://loki:3100}
+    networks:
+      - bazar-network
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  worker:
+    image: registry.gitlab.com/artemkolychev/bazar-ai/php:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: ${APP_ENV}
+      args:
+        PUID: ${PUID:-1000}
+        PGID: ${PGID:-1000}
+    networks:
+      - bazar-network
+    restart: unless-stopped
+    volumes:
+      - uploads_data:/var/www/html/public/uploads
+    environment:
+      APP_ENV: ${APP_ENV}
+      APP_DEBUG: "0"
+      APP_SECRET: ${APP_SECRET}
+      APP_URL: ${APP_URL}
+      INTERNAL_APP_URL: ${INTERNAL_APP_URL:-http://nginx}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      MESSENGER_TRANSPORT_DSN: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@${RABBITMQ_HOST}:${RABBITMQ_PORT}/%2f/messages
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_ORGANIZATION: ${OPENAI_ORGANIZATION}
+      LOKI_URL: ${LOKI_URL:-http://loki:3100}
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      rabbitmq:
+        condition: service_healthy
+        restart: true
+    command: >
+      sh -c "while true; do
+        php bin/console messenger:consume local_async clicker_events
+          --time-limit=3600 --memory-limit=128M -vv;
+        echo '[worker] exited, restarting in 2s...';
+        sleep 2;
+      done"
+
+  nginx:
+    image: registry.gitlab.com/artemkolychev/bazar-ai/nginx:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+      target: ${APP_ENV}
+      args:
+        - BE_PORT=${BE_PORT}
+        - HOST=${HOST}
+    networks:
+      - bazar-network
+    restart: unless-stopped
+    volumes:
+      - uploads_data:/var/www/html/public/uploads
+    depends_on:
+      - php
+
+  db:
+    image: postgres:16-alpine
+    user: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_bazar-data:/var/lib/postgresql/data
+    networks:
+      - bazar-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  loki:
+    image: grafana/loki:3.4.2
+    volumes:
+      - ./docker/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - bazar-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.6.0
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+    volumes:
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    networks:
+      - bazar-network
+    restart: unless-stopped
+    depends_on:
+      - loki
+
+  promtail:
+    image: grafana/promtail:3.4.2
+    volumes:
+      - ./docker/promtail/promtail-config.yaml:/etc/promtail/config.yml:ro
+      - ${DOCKER_ROOT:-/var/lib/docker}/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - bazar-network
+    restart: unless-stopped
+    depends_on:
+      - loki
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare_tunnel
+    restart: unless-stopped
+    profiles: ["prod"]
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel run
+    networks:
+      - bazar-network
+
+volumes:
+  db_bazar-data:
+  redis_data:
+  rabbitmq_data:
+  x11-socket:
+  loki_data:
+  grafana_data:
+  uploads_data:
+
+networks:
+  bazar-network:
+    driver: bridge

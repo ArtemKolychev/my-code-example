@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Publish articles{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+
+                {{ form_start(form) }}
+
+                {% for i in 0..(groupedData|length - 1) %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h4>Article {{ i+1 }}</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                {% if groupedData[i].images is defined %}
+                                    <div class="mb-3">
+                                        <label class="form-label">Previously uploaded images:</label>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            {% for imagePath in groupedData[i].images %}
+                                                <img src="{{ asset(imagePath) }}" class="img-thumbnail" style="max-width: 150px;">
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                {{ form_label(form['images_' ~ i]) }}
+                                {{ form_widget(form['images_' ~ i]) }}
+                                {{ form_errors(form['images_' ~ i]) }}
+                                <div class="form-text">You can upload multiple images at once.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form['title_' ~ i]) }}
+                                {{ form_widget(form['title_' ~ i]) }}
+                                {{ form_errors(form['title_' ~ i]) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form['description_' ~ i]) }}
+                                {{ form_widget(form['description_' ~ i]) }}
+                                {{ form_errors(form['description_' ~ i]) }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a href="{{ path('app_user_profile') }}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

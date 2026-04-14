@@ -1,0 +1,64 @@
+{
+  "title": "Bazar AI — Overview",
+  "uid": "bazar-overview",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Log Volume by Service",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum by (service) (rate({job=\"docker\"}[5m]))",
+          "legendFormat": "{{service}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Error Rate by Service",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "sum by (service) (rate({job=\"docker\"} |= \"error\" [5m]))",
+          "legendFormat": "{{service}} errors"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Recent Errors",
+      "type": "logs",
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 10 },
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "{job=\"docker\"} |= \"error\"",
+          "legendFormat": ""
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "All Logs",
+      "type": "logs",
+      "gridPos": { "x": 0, "y": 18, "w": 24, "h": 10 },
+      "options": { "showTime": true, "showLabels": true, "wrapLogMessage": true },
+      "targets": [
+        {
+          "datasource": "Loki",
+          "expr": "{job=\"docker\"}",
+          "legendFormat": ""
+        }
+      ]
+    }
+  ]
+}

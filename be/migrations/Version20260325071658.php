@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DoctrineMigrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * Auto-generated Migration: Please modify to your needs!
+ */
+final class Version20260325071658 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return '';
+    }
+
+    public function up(Schema $schema): void
+    {
+        // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE article ALTER category TYPE VARCHAR(255)');
+        $this->addSql('ALTER TABLE article ALTER condition TYPE VARCHAR(255)');
+        // image_batch.condition column already added by prior partial migration run
+    }
+
+    public function down(Schema $schema): void
+    {
+        // this down() migration is auto-generated, please modify it to your needs
+        $this->addSql('CREATE SCHEMA public');
+        $this->addSql('ALTER TABLE image_batch DROP condition');
+        $this->addSql('ALTER TABLE article ALTER category TYPE VARCHAR(32)');
+        $this->addSql('ALTER TABLE article ALTER condition TYPE VARCHAR(32)');
+    }
+}

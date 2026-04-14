@@ -1,0 +1,17 @@
+monolog:
+    channels:
+        - clicker_events
+        - llm
+        - messaging
+
+    handlers:
+        stderr:
+            type: stream
+            path: 'php://stderr'
+            level: debug
+            formatter: monolog.formatter.json
+
+        loki:
+            type: service
+            id: App\Logging\LokiHandler
+            level: debug

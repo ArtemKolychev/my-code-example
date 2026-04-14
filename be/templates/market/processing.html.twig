@@ -1,0 +1,422 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Zpracování obrázků{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 text-center">
+            <h2>Zpracování obrázků...</h2>
+            <p class="text-muted">Obrázky se analyzují pomocí AI. Prosím počkejte.</p>
+
+            <div class="spinner-border text-primary my-4" role="status">
+                <span class="visually-hidden">Načítání...</span>
+            </div>
+
+            <div id="status-message" class="alert alert-info">
+                Stav: čekání na zpracování...
+            </div>
+
+            <div id="error-message" class="alert alert-danger d-none"></div>
+            <button id="retry-btn" class="btn btn-primary d-none mt-2">Zkusit znovu</button>
+
+            {# Per-group condition confirmation #}
+            <div id="group-conditions-form" class="d-none text-start mt-4"></div>
+
+            {# Legacy: single text/code input #}
+            <div id="input-form" class="d-none text-start mt-4">
+                <div id="input-images" class="d-flex flex-wrap gap-2 mb-3"></div>
+                <p id="input-prompt" class="fw-semibold"></p>
+                <div id="input-fields-container"></div>
+                <div class="input-group" id="input-code-group">
+                    <input type="text" id="input-code" class="form-control" placeholder="Zadejte hodnotu...">
+                    <button class="btn btn-primary" id="input-submit">Odeslat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const batchId = {{ batchId }};
+    const statusEl = document.getElementById('status-message');
+    const errorEl = document.getElementById('error-message');
+    const retryBtn = document.getElementById('retry-btn');
+    const spinner = document.querySelector('.spinner-border');
+
+    retryBtn.addEventListener('click', async () => {
+        retryBtn.disabled = true;
+        try {
+            const res = await fetch(`/api/batch/${batchId}/retry`, { method: 'POST' });
+            if (res.ok) {
+                errorEl.classList.add('d-none');
+                retryBtn.classList.add('d-none');
+                spinner.classList.remove('d-none');
+                statusEl.classList.remove('d-none');
+                statusEl.textContent = 'Stav: zpracovávání...';
+            } else {
+                retryBtn.disabled = false;
+            }
+        } catch (e) {
+            retryBtn.disabled = false;
+        }
+    });
+
+    // --- Group conditions UI ---
+    const groupConditionsForm = document.getElementById('group-conditions-form');
+    let groupConditionsRendered = false;
+
+    function renderGroupConditions(pendingInput) {
+        if (groupConditionsRendered) return;
+        groupConditionsRendered = true;
+
+        spinner.classList.add('d-none');
+        statusEl.classList.add('d-none');
+
+        const groups = pendingInput.groups ?? [];
+        const conditionOptions = pendingInput.conditionOptions ?? [];
+
+        groups.forEach(group => {
+            const card = document.createElement('div');
+            card.className = 'card mb-3';
+
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body';
+
+            // Group name
+            const title = document.createElement('h5');
+            title.className = 'card-title';
+            title.textContent = group.group_name ?? `Skupina ${group.index + 1}`;
+            cardBody.appendChild(title);
+
+            // Thumbnails
+            const thumbRow = document.createElement('div');
+            thumbRow.className = 'd-flex flex-wrap gap-2 mb-3';
+            (group.imageUrls ?? []).forEach(url => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.style.cssText = 'max-height:120px;max-width:160px;object-fit:contain;border:1px solid #dee2e6;border-radius:4px';
+                thumbRow.appendChild(img);
+            });
+            cardBody.appendChild(thumbRow);
+
+            // Condition select
+            const label = document.createElement('label');
+            label.className = 'form-label fw-semibold';
+            label.htmlFor = `group-condition-${group.index}`;
+            label.textContent = 'Stav zboží';
+            cardBody.appendChild(label);
+
+            const select = document.createElement('select');
+            select.id = `group-condition-${group.index}`;
+            select.className = 'form-select';
+            select.dataset.groupIndex = group.index;
+            conditionOptions.forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.label;
+                // Pre-select AI suggestion if provided
+                if (group.condition && opt.value === group.condition) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+            cardBody.appendChild(select);
+
+            // Required missing fields (no skip)
+            const missingRequired = group.missingRequiredFields ?? [];
+            if (missingRequired.length > 0) {
+                const reqTitle = document.createElement('p');
+                reqTitle.className = 'form-label fw-semibold mt-3 mb-1';
+                reqTitle.innerHTML = 'Povinné parametry <span class="text-danger">*</span>';
+                cardBody.appendChild(reqTitle);
+            }
+            missingRequired.forEach(field => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'mb-2';
+                const lbl = document.createElement('label');
+                lbl.className = 'form-label mb-1';
+                lbl.htmlFor = `group-field-${group.index}-${field.key}`;
+                lbl.innerHTML = `${field.label} <span class="text-danger">*</span>`;
+                wrapper.appendChild(lbl);
+                if (field.type === 'select' && field.options) {
+                    const sel = document.createElement('select');
+                    sel.id = `group-field-${group.index}-${field.key}`;
+                    sel.className = 'form-select form-select-sm group-extra-field';
+                    sel.dataset.groupIndex = group.index;
+                    sel.dataset.fieldKey = field.key;
+                    sel.dataset.required = 'true';
+                    const blank = document.createElement('option');
+                    blank.value = '';
+                    blank.textContent = '—';
+                    sel.appendChild(blank);
+                    Object.entries(field.options).forEach(([val, label]) => {
+                        const opt = document.createElement('option');
+                        opt.value = val;
+                        opt.textContent = label;
+                        sel.appendChild(opt);
+                    });
+                    wrapper.appendChild(sel);
+                } else {
+                    const inp = document.createElement('input');
+                    inp.id = `group-field-${group.index}-${field.key}`;
+                    inp.type = field.type === 'number' ? 'number' : 'text';
+                    inp.className = 'form-control form-control-sm group-extra-field';
+                    inp.dataset.groupIndex = group.index;
+                    inp.dataset.fieldKey = field.key;
+                    inp.dataset.required = 'true';
+                    wrapper.appendChild(inp);
+                }
+                cardBody.appendChild(wrapper);
+            });
+
+            // Optional fields (with skip button)
+            const optionalFields = group.optionalFields ?? [];
+            if (optionalFields.length > 0) {
+                const optTitle = document.createElement('p');
+                optTitle.className = 'form-label fw-semibold mt-3 mb-1 text-muted';
+                optTitle.textContent = 'Volitelné parametry';
+                cardBody.appendChild(optTitle);
+            }
+            optionalFields.forEach(field => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'mb-2 d-flex gap-2 align-items-center';
+                const lbl = document.createElement('label');
+                lbl.className = 'form-label mb-0 flex-shrink-0';
+                lbl.style.minWidth = '100px';
+                lbl.htmlFor = `group-field-${group.index}-${field.key}`;
+                lbl.textContent = field.label;
+                wrapper.appendChild(lbl);
+                if (field.type === 'select' && field.options) {
+                    const sel = document.createElement('select');
+                    sel.id = `group-field-${group.index}-${field.key}`;
+                    sel.className = 'form-select form-select-sm group-extra-field flex-grow-1';
+                    sel.dataset.groupIndex = group.index;
+                    sel.dataset.fieldKey = field.key;
+                    sel.dataset.required = 'false';
+                    const blank = document.createElement('option');
+                    blank.value = '';
+                    blank.textContent = '—';
+                    sel.appendChild(blank);
+                    Object.entries(field.options).forEach(([val, label]) => {
+                        const opt = document.createElement('option');
+                        opt.value = val;
+                        opt.textContent = label;
+                        sel.appendChild(opt);
+                    });
+                    wrapper.appendChild(sel);
+                } else {
+                    const inp = document.createElement('input');
+                    inp.id = `group-field-${group.index}-${field.key}`;
+                    inp.type = field.type === 'number' ? 'number' : 'text';
+                    inp.className = 'form-control form-control-sm group-extra-field flex-grow-1';
+                    inp.dataset.groupIndex = group.index;
+                    inp.dataset.fieldKey = field.key;
+                    inp.dataset.required = 'false';
+                    wrapper.appendChild(inp);
+                }
+                const skipBtn = document.createElement('button');
+                skipBtn.type = 'button';
+                skipBtn.className = 'btn btn-outline-secondary btn-sm flex-shrink-0';
+                skipBtn.textContent = 'Skip';
+                skipBtn.addEventListener('click', () => {
+                    const input = wrapper.querySelector('.group-extra-field');
+                    if (input) input.value = '';
+                    wrapper.classList.add('opacity-50');
+                    skipBtn.disabled = true;
+                });
+                wrapper.appendChild(skipBtn);
+                cardBody.appendChild(wrapper);
+            });
+
+            card.appendChild(cardBody);
+            groupConditionsForm.appendChild(card);
+        });
+
+        // Submit button
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-primary btn-lg w-100 mt-2';
+        btn.textContent = 'Potvrdit stavy a pokračovat';
+        btn.addEventListener('click', async () => {
+            // Validate required extra fields
+            let valid = true;
+            groupConditionsForm.querySelectorAll('.group-extra-field[data-required="true"]').forEach(el => {
+                if (!el.value.trim()) {
+                    el.classList.add('is-invalid');
+                    valid = false;
+                } else {
+                    el.classList.remove('is-invalid');
+                }
+            });
+            if (!valid) return;
+
+            btn.disabled = true;
+            const groupConditions = {};
+            groupConditionsForm.querySelectorAll('select[data-group-index]:not(.group-extra-field)').forEach(sel => {
+                groupConditions[parseInt(sel.dataset.groupIndex)] = sel.value;
+            });
+
+            // Collect extra fields per group
+            const groupFields = {};
+            groupConditionsForm.querySelectorAll('.group-extra-field').forEach(el => {
+                const idx = parseInt(el.dataset.groupIndex);
+                const key = el.dataset.fieldKey;
+                const val = el.value.trim();
+                if (!groupFields[idx]) groupFields[idx] = {};
+                groupFields[idx][key] = val;
+            });
+
+            try {
+                const res = await fetch(`/api/batch/${batchId}/input`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ groupConditions, groupFields }),
+                });
+                if (res.ok) {
+                    groupConditionsForm.classList.add('d-none');
+                    spinner.classList.remove('d-none');
+                    statusEl.classList.remove('d-none');
+                    statusEl.textContent = 'Stav: vytváření inzerátů...';
+                } else {
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                btn.disabled = false;
+            }
+        });
+        groupConditionsForm.appendChild(btn);
+        groupConditionsForm.classList.remove('d-none');
+    }
+
+    // --- Legacy single-input UI ---
+    const inputForm = document.getElementById('input-form');
+    const inputImagesEl = document.getElementById('input-images');
+    const inputPromptEl = document.getElementById('input-prompt');
+    const inputFieldsContainer = document.getElementById('input-fields-container');
+    const inputCodeGroup = document.getElementById('input-code-group');
+    const inputCode = document.getElementById('input-code');
+    const inputSubmit = document.getElementById('input-submit');
+    let currentFields = null;
+
+    inputSubmit.addEventListener('click', async () => {
+        let body;
+        if (currentFields && currentFields.length > 0) {
+            const fields = {};
+            currentFields.forEach(field => {
+                const el = document.getElementById('field-' + field.name);
+                if (el) fields[field.name] = el.value;
+            });
+            body = JSON.stringify({ fields });
+        } else {
+            const code = inputCode.value.trim();
+            if (!code) return;
+            body = JSON.stringify({ code });
+        }
+
+        inputSubmit.disabled = true;
+        try {
+            const res = await fetch(`/api/batch/${batchId}/input`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body,
+            });
+            if (res.ok) {
+                inputForm.classList.add('d-none');
+                currentFields = null;
+                spinner.classList.remove('d-none');
+                statusEl.classList.remove('d-none');
+                statusEl.textContent = 'Stav: zpracovávání...';
+            } else {
+                inputSubmit.disabled = false;
+            }
+        } catch (e) {
+            inputSubmit.disabled = false;
+        }
+    });
+
+    // --- Polling ---
+    const poll = setInterval(async () => {
+        try {
+            const res = await fetch(`/api/batch/${batchId}/status`);
+            const data = await res.json();
+
+            if (data.status === 'processing') {
+                statusEl.textContent = 'Stav: zpracovávání...';
+            } else if (data.status === 'needs_input' && data.pendingInput) {
+                const inputType = data.pendingInput.inputType ?? '';
+
+                if (inputType === 'group_conditions') {
+                    renderGroupConditions(data.pendingInput);
+                    return;
+                }
+
+                // Legacy single-input
+                spinner.classList.add('d-none');
+                statusEl.classList.add('d-none');
+                inputPromptEl.textContent = data.pendingInput.inputPrompt ?? 'Zadejte hodnotu:';
+
+                const urls = data.pendingInput.imageUrls ?? [];
+                if (urls.length > 0 && inputImagesEl.childElementCount === 0) {
+                    urls.forEach(url => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.style.cssText = 'max-height:120px;max-width:160px;object-fit:contain;border:1px solid #dee2e6;border-radius:4px';
+                        inputImagesEl.appendChild(img);
+                    });
+                }
+
+                const fields = data.pendingInput.fields ?? [];
+                const selectFields = fields.filter(f => f.type === 'select');
+
+                if (selectFields.length > 0 && inputFieldsContainer.childElementCount === 0) {
+                    currentFields = selectFields;
+                    inputCodeGroup.classList.add('d-none');
+                    selectFields.forEach(field => {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'mb-3';
+                        const lbl = document.createElement('label');
+                        lbl.htmlFor = 'field-' + field.name;
+                        lbl.className = 'form-label fw-semibold';
+                        lbl.textContent = field.label;
+                        const sel = document.createElement('select');
+                        sel.id = 'field-' + field.name;
+                        sel.className = 'form-select';
+                        (field.options ?? []).forEach(opt => {
+                            const option = document.createElement('option');
+                            option.value = opt.value ?? opt;
+                            option.textContent = opt.label ?? opt;
+                            sel.appendChild(option);
+                        });
+                        wrapper.appendChild(lbl);
+                        wrapper.appendChild(sel);
+                        inputFieldsContainer.appendChild(wrapper);
+                    });
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-primary';
+                    btn.textContent = 'Potvrdit';
+                    btn.addEventListener('click', () => inputSubmit.click());
+                    inputFieldsContainer.appendChild(btn);
+                } else if (selectFields.length === 0) {
+                    inputCodeGroup.classList.remove('d-none');
+                    inputCode.focus();
+                }
+
+                inputForm.classList.remove('d-none');
+            } else if (data.status === 'completed' && data.articleIds && data.articleIds.length > 0) {
+                clearInterval(poll);
+                statusEl.classList.remove('d-none');
+                statusEl.textContent = 'Stav: dokončeno! Přesměrování...';
+                window.location = `/market/article/${data.articleIds.join('-')}/edit`;
+            } else if (data.status === 'failed') {
+                clearInterval(poll);
+                statusEl.classList.add('d-none');
+                errorEl.classList.remove('d-none');
+                errorEl.textContent = 'Zpracování selhalo. Zkuste to prosím znovu.';
+                retryBtn.classList.remove('d-none');
+            }
+        } catch (e) {
+            console.error('Polling error:', e);
+        }
+    }, 3000);
+</script>
+{% endblock %}

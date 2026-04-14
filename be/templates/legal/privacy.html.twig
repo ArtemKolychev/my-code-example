@@ -1,0 +1,224 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Zásady ochrany osobních údajů – Bazar AI{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+
+            <h1 class="mb-1">Zásady ochrany osobních údajů</h1>
+            <p class="text-muted mb-4">Poslední aktualizace: duben 2025</p>
+
+            <p>
+                Tyto Zásady ochrany osobních údajů (dále jen „Zásady") informují o tom, jaké osobní údaje
+                provozovatel služby Bazar AI (dále jen „Správce") zpracovává, za jakým účelem, na jakém
+                právním základě a po jakou dobu, a jaká práva máte jako subjekt údajů. Zásady jsou zpracovány
+                v souladu s nařízením Evropského parlamentu a Rady (EU) 2016/679 ze dne 27. dubna 2016
+                (obecné nařízení o ochraně osobních údajů, dále jen „GDPR").
+            </p>
+
+            <hr class="my-4">
+
+            <h2>1. Správce osobních údajů</h2>
+            <p>
+                Správcem osobních údajů je provozovatel platformy Bazar AI. Kontaktní e-mailová adresa je
+                uvedena v aplikaci v sekci nastavení účtu nebo bude sdělena na vyžádání.
+            </p>
+
+            <h2>2. Jaké osobní údaje zpracováváme</h2>
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Kategorie dat</th>
+                        <th>Konkrétní údaje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Registrační údaje</td>
+                        <td>E-mailová adresa, zahashované heslo, datum registrace, datum přijetí Podmínek</td>
+                    </tr>
+                    <tr>
+                        <td>Profilové údaje</td>
+                        <td>Jméno, adresa, PSČ, telefonní číslo (nepovinné)</td>
+                    </tr>
+                    <tr>
+                        <td>Obsah inzerátů</td>
+                        <td>Texty, fotografie, kategorie, ceny a další informace vložené Uživatelem</td>
+                    </tr>
+                    <tr>
+                        <td>Přihlašovací údaje k portálům</td>
+                        <td>Přihlašovací tokeny a přístupové klíče k Inzertním portálům třetích stran uložené Uživatelem</td>
+                    </tr>
+                    <tr>
+                        <td>Provozní záznamy</td>
+                        <td>Logy aktivit, chybové záznamy, technické identifikátory relací</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>3. Účely zpracování a právní základ</h2>
+
+            <h5>3.1 Poskytování Služby</h5>
+            <p>
+                <strong>Právní základ:</strong> plnění smlouvy (čl. 6 odst. 1 písm. b) GDPR).<br>
+                Zpracováváme registrační a profilové údaje a obsah inzerátů za účelem poskytování Služby,
+                tedy správy a automatizovaného zveřejňování inzerátů na Inzertních portálech dle pokynů Uživatele.
+            </p>
+
+            <h5>3.2 Zpracování dat pomocí AI (LLM)</h5>
+            <p>
+                <strong>Právní základ:</strong> souhlas subjektu údajů (čl. 6 odst. 1 písm. a) GDPR) a
+                plnění smlouvy (čl. 6 odst. 1 písm. b) GDPR).<br>
+                Za účelem automatického generování textů, analýzy obrázků a doporučení ceny jsou vybrané
+                části obsahu inzerátů (texty, fotografie) <strong>předávány externím poskytovatelům AI</strong>,
+                zejména společnosti <strong>OpenAI, L.L.C.</strong> se sídlem ve Spojených státech amerických.
+                Toto předání je nezbytnou součástí Služby; bez tohoto předání nelze funkce AI využívat.
+                Předání probíhá na základě standardních smluvních doložek schválených Evropskou komisí
+                (čl. 46 odst. 2 písm. c) GDPR) nebo jiného platného mechanismu.
+            </p>
+            <div class="alert alert-info">
+                <strong>Upozornění:</strong> Nezadávejte do Služby obsah obsahující citlivé osobní údaje
+                (zdravotní stav, biometrické údaje, rodná čísla apod.), neboť tyto mohou být přeneseny
+                ke zpracování k externím AI poskytovatelům.
+            </div>
+
+            <h5>3.3 Bezpečnost a prevence podvodů</h5>
+            <p>
+                <strong>Právní základ:</strong> oprávněný zájem Správce (čl. 6 odst. 1 písm. f) GDPR).<br>
+                Provozní záznamy a logy uchováváme za účelem detekce a prevence zneužití Služby, řešení
+                technických problémů a zajištění integrity systému.
+            </p>
+
+            <h5>3.4 Plnění zákonných povinností</h5>
+            <p>
+                <strong>Právní základ:</strong> plnění právní povinnosti (čl. 6 odst. 1 písm. c) GDPR).<br>
+                Osobní údaje uchováváme v rozsahu a po dobu stanovenou právními předpisy (zejm. zákon o
+                účetnictví, daňové předpisy).
+            </p>
+
+            <h2>4. Příjemci osobních údajů</h2>
+            <p>Vaše osobní údaje mohou být předány nebo zpřístupněny těmto kategoriím příjemců:</p>
+            <ul>
+                <li>
+                    <strong>Poskytovatelé AI modelů</strong> – zejména OpenAI, L.L.C. (USA) – za účelem
+                    zpracování obsahu inzerátů (viz odst. 3.2 výše).
+                </li>
+                <li>
+                    <strong>Poskytovatelé cloudové infrastruktury</strong> – servery a databáze Správce
+                    (může jít o poskytovatele v EU i mimo EU se zajištěním odpovídající ochrany).
+                </li>
+                <li>
+                    <strong>Inzertní portály</strong> – na pokyn Uživatele jsou data inzerátů odesílána
+                    na Inzertní portály třetích stran (bazos.cz, sbazar.cz apod.). Za zpracování dat
+                    těmito portály Správce neodpovídá.
+                </li>
+                <li>
+                    <strong>Orgány veřejné moci</strong> – v případě zákonné povinnosti nebo oprávněné
+                    žádosti (policie, soudy, finanční správa apod.).
+                </li>
+            </ul>
+            <p>
+                Osobní údaje nejsou prodávány, pronajímány ani sdíleny se třetími stranami za obchodními
+                účely nad rámec výše uvedeného.
+            </p>
+
+            <h2>5. Předávání osobních údajů do třetích zemí</h2>
+            <p>
+                Při zpracování dat pomocí AI dochází k předání osobních údajů do Spojených států amerických
+                (OpenAI, L.L.C.). Toto předání je zajištěno prostřednictvím standardních smluvních doložek
+                schválených Evropskou komisí ve smyslu čl. 46 odst. 2 písm. c) GDPR nebo jiného platného
+                mechanismu. Více informací naleznete v
+                <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">zásadách ochrany
+                osobních údajů OpenAI</a>.
+            </p>
+
+            <h2>6. Doba uchovávání osobních údajů</h2>
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Kategorie dat</th>
+                        <th>Doba uchovávání</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Registrační a profilové údaje</td>
+                        <td>Po dobu trvání účtu; po zrušení účtu po dobu 3 let pro případ právních nároků</td>
+                    </tr>
+                    <tr>
+                        <td>Obsah inzerátů</td>
+                        <td>Po dobu trvání účtu nebo do dobu smazání inzerátu Uživatelem</td>
+                    </tr>
+                    <tr>
+                        <td>Provozní záznamy (logy)</td>
+                        <td>90 dnů od pořízení záznamu</td>
+                    </tr>
+                    <tr>
+                        <td>Záznam o přijetí Podmínek</td>
+                        <td>Po dobu trvání účtu + 5 let (důkazní hodnota)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>7. Vaše práva jakožto subjektu údajů</h2>
+            <p>Podle GDPR máte tato práva:</p>
+            <ul>
+                <li><strong>Právo na přístup</strong> (čl. 15 GDPR) – právo obdržet potvrzení o zpracování a kopii svých osobních údajů.</li>
+                <li><strong>Právo na opravu</strong> (čl. 16 GDPR) – právo na opravu nepřesných nebo doplnění neúplných osobních údajů.</li>
+                <li><strong>Právo na výmaz</strong> (čl. 17 GDPR) – právo požádat o smazání osobních údajů za podmínek stanovených GDPR.</li>
+                <li><strong>Právo na omezení zpracování</strong> (čl. 18 GDPR) – právo požádat o omezení zpracování v případech stanovených GDPR.</li>
+                <li><strong>Právo na přenositelnost</strong> (čl. 20 GDPR) – právo obdržet osobní údaje ve strukturovaném, strojově čitelném formátu.</li>
+                <li><strong>Právo vznést námitku</strong> (čl. 21 GDPR) – právo vznést námitku vůči zpracování prováděnému na základě oprávněného zájmu.</li>
+                <li>
+                    <strong>Právo odvolat souhlas</strong> – pokud je zpracování založeno na souhlasu, máte právo souhlas
+                    kdykoli odvolat, aniž by tím byla dotčena zákonnost zpracování před odvoláním souhlasu.
+                </li>
+            </ul>
+            <p>
+                Svá práva uplatňujte zasláním e-mailové žádosti na kontaktní adresu uvedenou v aplikaci.
+                Žádost vyřídíme bez zbytečného odkladu, nejpozději do 30 dnů od doručení.
+            </p>
+            <p>
+                Dále máte právo podat stížnost u dozorového úřadu, v České republice jím je
+                <strong>Úřad pro ochranu osobních údajů (ÚOOÚ)</strong>, Pplk. Sochora 27, 170 00 Praha 7,
+                <a href="https://www.uoou.cz" target="_blank" rel="noopener">www.uoou.cz</a>.
+            </p>
+
+            <h2>8. Zabezpečení osobních údajů</h2>
+            <p>
+                Správce přijímá přiměřená technická a organizační opatření k ochraně osobních údajů před
+                neoprávněným přístupem, ztrátou nebo zneužitím, zejména šifrování přenášených dat (HTTPS),
+                hashování hesel a omezení přístupu k datům pouze pro oprávněné osoby.
+            </p>
+
+            <h2>9. Cookies</h2>
+            <p>
+                Aplikace může používat session cookies nezbytné pro fungování přihlášení. Tato cookies
+                neobsahují osobní identifikátory třetích stran a nejsou sdílena s reklamními sítěmi.
+            </p>
+
+            <h2>10. Změny Zásad</h2>
+            <p>
+                Správce je oprávněn tyto Zásady kdykoli aktualizovat. Datum poslední aktualizace je
+                uvedeno v záhlaví tohoto dokumentu. V případě podstatných změn budou Uživatelé informováni
+                e-mailem nebo oznámením v aplikaci.
+            </p>
+
+            <hr class="my-4">
+            <p class="text-muted small">
+                Tyto Zásady se vztahují pouze na zpracování prováděné Správcem. Za zpracování dat Inzertními
+                portály (bazos.cz, sbazar.cz apod.) a externími AI poskytovateli (OpenAI apod.) tito nesou
+                odpovědnost samostatně, v souladu se svými vlastními zásadami ochrany osobních údajů.
+            </p>
+
+            <div class="mt-4">
+                <a href="{{ path('app_register') }}" class="btn btn-primary">Zpět na registraci</a>
+                <a href="{{ path('app_terms') }}" class="btn btn-outline-secondary ms-2">Podmínky použití</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

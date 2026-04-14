@@ -1,0 +1,373 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .article-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        .article-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .article-title {
+            font-weight: bold;
+            margin: 0;
+        }
+        .market-btn {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fff;
+            cursor: pointer;
+            text-align: left;
+            min-width: 200px;
+            text-decoration: none;
+            color: inherit;
+        }
+        .market-btn:hover {
+            border-color: #adb5bd;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            color: inherit;
+            text-decoration: none;
+        }
+        .market-btn.connected {
+            border-color: #198754;
+        }
+        .market-btn.active-open {
+            border-color: #0d6efd;
+            box-shadow: 0 2px 8px rgba(13,110,253,0.15);
+        }
+        .market-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .market-icon.sbazar { background: #e63946; }
+        .market-icon.bazos  { background: #f4900c; }
+        .market-icon.motoinzerce { background: #1a73e8; }
+        .market-icon.vinted { background: #09b26e; }
+        .market-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin: 0;
+            color: #212529;
+        }
+        .market-status {
+            font-size: 0.78rem;
+            margin: 2px 0 0;
+            color: #6c757d;
+        }
+        .market-status.ok { color: #198754; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Welcome, {{ user.email }}</h1>
+
+                <a href="{{ path('app_logout') }}" class="btn btn-danger">Logout</a>
+                {% set contactFilled = user.name and user.address and user.zip and user.phone %}
+                {% set hasAnyCredential = hasSbazarCredential or hasBazosCredential or hasVintedCredential or hasMotoinzerceCredential %}
+                {% if contactFilled and hasAnyCredential %}
+                    <a href="{{ path('app_list_articles') }}" class="btn btn-success">Show your articles</a>
+                {% endif %}
+
+                <div class="card mt-3">
+                    <div class="card-body py-2 px-3 d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">AI tokeny</span>
+                        <span class="badge {% if user.tokenBalance <= 0 %}bg-danger{% elseif user.tokenBalance < 10000 %}bg-warning text-dark{% else %}bg-info text-dark{% endif %}">
+                            {% if user.tokenBalance <= 0 %}
+                                Vyčerpáno
+                            {% else %}
+                                {{ user.tokenBalance|number_format(0, '.', ' ') }} zbývá
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="mb-0">Kontaktní údaje</h3>
+                    </div>
+                    <div class="card-body">
+                        {{ form_start(profileForm) }}
+                            <div class="mb-3">
+                                {{ form_label(profileForm.name) }}
+                                {{ form_widget(profileForm.name) }}
+                                {{ form_errors(profileForm.name) }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form_label(profileForm.address) }}
+                                {{ form_widget(profileForm.address) }}
+                                {{ form_errors(profileForm.address) }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form_label(profileForm.zip) }}
+                                {{ form_widget(profileForm.zip) }}
+                                {{ form_errors(profileForm.zip) }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form_label(profileForm.phone) }}
+                                {{ form_widget(profileForm.phone) }}
+                                {{ form_errors(profileForm.phone) }}
+                            </div>
+                            {{ form_widget(profileForm.save) }}
+                        {{ form_end(profileForm) }}
+                    </div>
+                </div>
+
+                <h2 class="mt-4 mb-3">Your Markets</h2>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    {# Connected markets first (alphabetically), then disconnected (alphabetically) #}
+                    {# Connected: Bazoš < Sbazar #}
+                    {% if hasBazosCredential %}
+                    <a class="market-btn connected" data-bs-toggle="collapse" href="#credentials-bazos" role="button" aria-expanded="false" aria-controls="credentials-bazos">
+                        <div class="market-icon bazos">B</div>
+                        <div>
+                            <p class="market-name">Bazoš</p>
+                            <p class="market-status ok">● Připojeno</p>
+                        </div>
+                    </a>
+                    {% endif %}
+                    {% if hasSbazarCredential %}
+                    <a class="market-btn connected" data-bs-toggle="collapse" href="#credentials-sbazar" role="button" aria-expanded="false" aria-controls="credentials-sbazar">
+                        <div class="market-icon sbazar">S</div>
+                        <div>
+                            <p class="market-name">Sbazar</p>
+                            <p class="market-status ok">● Připojeno</p>
+                        </div>
+                    </a>
+                    {% endif %}
+                    {% if hasMotoinzerceCredential %}
+                    <a class="market-btn connected" data-bs-toggle="collapse" href="#credentials-motoinzerce" role="button" aria-expanded="false" aria-controls="credentials-motoinzerce">
+                        <div class="market-icon motoinzerce">M</div>
+                        <div>
+                            <p class="market-name">MotoInzerce</p>
+                            <p class="market-status ok">● Připojeno</p>
+                        </div>
+                    </a>
+                    {% endif %}
+                    {# Disconnected: Bazoš < MotoInzerce < Sbazar < Vinted #}
+                    {% if not hasBazosCredential %}
+                    <a class="market-btn" data-bs-toggle="collapse" href="#credentials-bazos" role="button" aria-expanded="false" aria-controls="credentials-bazos">
+                        <div class="market-icon bazos">B</div>
+                        <div>
+                            <p class="market-name">Bazoš</p>
+                            <p class="market-status">○ Nepřipojeno</p>
+                        </div>
+                    </a>
+                    {% endif %}
+                    {% if not hasMotoinzerceCredential %}
+                    <a class="market-btn" data-bs-toggle="collapse" href="#credentials-motoinzerce" role="button" aria-expanded="false" aria-controls="credentials-motoinzerce">
+                        <div class="market-icon motoinzerce">M</div>
+                        <div>
+                            <p class="market-name">MotoInzerce</p>
+                            <p class="market-status">○ Nepřipojeno</p>
+                        </div>
+                    </a>
+                    {% endif %}
+                    {% if not hasSbazarCredential %}
+                    <a class="market-btn" data-bs-toggle="collapse" href="#credentials-sbazar" role="button" aria-expanded="false" aria-controls="credentials-sbazar">
+                        <div class="market-icon sbazar">S</div>
+                        <div>
+                            <p class="market-name">Sbazar</p>
+                            <p class="market-status">○ Nepřipojeno</p>
+                        </div>
+                    </a>
+                    {% endif %}
+                    {# Vinted temporarily hidden — IP blocked #}
+                    {% if hasVintedCredential %}
+                    <a class="market-btn connected d-none" data-bs-toggle="collapse" href="#credentials-vinted" role="button" aria-expanded="false" aria-controls="credentials-vinted">
+                        <div class="market-icon vinted">V</div>
+                        <div>
+                            <p class="market-name">Vinted</p>
+                            <p class="market-status ok">● Připojeno</p>
+                        </div>
+                    </a>
+                    {% else %}
+                    <a class="market-btn d-none" data-bs-toggle="collapse" href="#credentials-vinted" role="button" aria-expanded="false" aria-controls="credentials-vinted">
+                        <div class="market-icon vinted">V</div>
+                        <div>
+                            <p class="market-name">Vinted</p>
+                            <p class="market-status">○ Nepřipojeno</p>
+                        </div>
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="collapse market-collapse mt-3" id="credentials-bazos">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">Bazoš Credentials</h3>
+                            {% if hasBazosCredential %}
+                                <span class="badge bg-success">Připojeno</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Nepřipojeno</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-3">
+                                <strong>Login</strong> = telefonní číslo pro SMS ověření&ensp;·&ensp;
+                                <strong>Password</strong> = heslo inzerátu (libovolné, slouží ke správě inzerátů)
+                            </p>
+                            {{ form_start(bazosForm) }}
+                                <div class="mb-3">
+                                    {{ form_label(bazosForm.login) }}
+                                    {{ form_widget(bazosForm.login, { attr: { placeholder: 'Telefonní číslo (např. 777123456)' } }) }}
+                                    {{ form_errors(bazosForm.login) }}
+                                </div>
+                                <div class="mb-3">
+                                    {{ form_label(bazosForm.password) }}
+                                    {{ form_widget(bazosForm.password, { attr: { placeholder: hasBazosCredential ? 'Ponechat prázdné = zachovat stávající' : 'Heslo inzerátu' } }) }}
+                                    {{ form_errors(bazosForm.password) }}
+                                </div>
+                                {{ form_widget(bazosForm.save) }}
+                            {{ form_end(bazosForm) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapse market-collapse mt-3" id="credentials-sbazar">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">Sbazar Credentials</h3>
+                            {% if hasSbazarCredential %}
+                                <span class="badge bg-success">Připojeno</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Nepřipojeno</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            {{ form_start(sbazarForm) }}
+                                <div class="mb-3">
+                                    {{ form_label(sbazarForm.login) }}
+                                    {{ form_widget(sbazarForm.login) }}
+                                    {{ form_errors(sbazarForm.login) }}
+                                </div>
+                                <div class="mb-3">
+                                    {{ form_label(sbazarForm.password) }}
+                                    {{ form_widget(sbazarForm.password) }}
+                                    {{ form_errors(sbazarForm.password) }}
+                                </div>
+                                {{ form_widget(sbazarForm.save) }}
+                            {{ form_end(sbazarForm) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapse market-collapse mt-3" id="credentials-motoinzerce">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">MotoInzerce Credentials</h3>
+                            {% if hasMotoinzerceCredential %}
+                                <span class="badge bg-success">Připojeno</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Nepřipojeno</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-3">
+                                <strong>Heslo</strong> = heslo pro správu inzerátů na MotoInzerce.cz (pokud nezadáte, bude vygenerováno automaticky)
+                            </p>
+                            {{ form_start(motoinzerceForm) }}
+                                <div class="mb-3">
+                                    {{ form_label(motoinzerceForm.password, 'Heslo pro správu inzerátů') }}
+                                    {{ form_widget(motoinzerceForm.password, { attr: { placeholder: hasMotoinzerceCredential ? 'Ponechat prázdné = zachovat stávající' : 'Heslo pro správu inzerátů' } }) }}
+                                    {{ form_errors(motoinzerceForm.password) }}
+                                </div>
+                                {{ form_widget(motoinzerceForm.save) }}
+                            {{ form_end(motoinzerceForm) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapse market-collapse mt-3" id="credentials-vinted">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="mb-0">Vinted Credentials</h3>
+                            {% if hasVintedCredential %}
+                                <span class="badge bg-success">Připojeno</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Nepřipojeno</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            {{ form_start(vintedForm) }}
+                                <div class="mb-3">
+                                    {{ form_label(vintedForm.login) }}
+                                    {{ form_widget(vintedForm.login, { attr: { placeholder: 'E-mail' } }) }}
+                                    {{ form_errors(vintedForm.login) }}
+                                </div>
+                                <div class="mb-3">
+                                    {{ form_label(vintedForm.password) }}
+                                    {{ form_widget(vintedForm.password, { attr: { placeholder: hasVintedCredential ? 'Ponechat prázdné = zachovat stávající' : 'Heslo' } }) }}
+                                    {{ form_errors(vintedForm.password) }}
+                                </div>
+                                {{ form_widget(vintedForm.save) }}
+                            {{ form_end(vintedForm) }}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var collapseEls = document.querySelectorAll('.market-collapse');
+
+            collapseEls.forEach(function (collapseEl) {
+                collapseEl.addEventListener('show.bs.collapse', function () {
+                    // Close all others
+                    collapseEls.forEach(function (other) {
+                        if (other !== collapseEl) {
+                            bootstrap.Collapse.getOrCreateInstance(other, { toggle: false }).hide();
+                            document.querySelectorAll('.market-btn[href="#' + other.id + '"]').forEach(function (btn) {
+                                btn.classList.remove('active-open');
+                            });
+                        }
+                    });
+                    document.querySelectorAll('.market-btn[href="#' + collapseEl.id + '"]').forEach(function (btn) {
+                        btn.classList.add('active-open');
+                    });
+                });
+                collapseEl.addEventListener('hide.bs.collapse', function () {
+                    document.querySelectorAll('.market-btn[href="#' + collapseEl.id + '"]').forEach(function (btn) {
+                        btn.classList.remove('active-open');
+                    });
+                });
+            });
+        });
+    </script>
+{% endblock %}

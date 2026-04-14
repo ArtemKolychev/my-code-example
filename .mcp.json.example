@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "gitlab": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "GITLAB_TOKEN",
+        "-e", "GITLAB_HOST=https://gitlab.com",
+        "gitlab-mcp-server"
+      ],
+      "env": {
+        "GITLAB_TOKEN": "glpat-XXXXXXXXXXXXXXXX"
+      }
+    }
+  }
+}

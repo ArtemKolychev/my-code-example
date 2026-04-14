@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add Article Images{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger" role="alert">{{ message }}</div>
+                {% endfor %}
+
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success" role="alert">{{ message }}</div>
+                {% endfor %}
+
+                {% if tokenBalance is defined %}
+                    <div class="alert {% if tokenBalance <= 0 %}alert-danger{% elseif tokenBalance < 10000 %}alert-warning{% else %}alert-info{% endif %} d-flex justify-content-between align-items-center">
+                        <span>
+                            <strong>AI tokeny:</strong>
+                            {% if tokenBalance <= 0 %}
+                                Vyčerpáno — nelze přidávat nové inzeráty.
+                            {% else %}
+                                {{ tokenBalance|number_format(0, '.', ' ') }} zbývá
+                            {% endif %}
+                        </span>
+                        {% if tokenBalance <= 0 %}
+                            <a href="{{ path('app_user_profile') }}" class="btn btn-sm btn-outline-danger">Kontaktovat podporu</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {% if tokenBalance is defined and tokenBalance <= 0 %}
+                    <p class="text-muted">Vaše kvóta AI tokenů je vyčerpána. Nové inzeráty nelze přidávat, dokud nebudou tokeny obnoveny.</p>
+                {% else %}
+                    {{ form_start(form) }}
+                    {{ form_errors(form) }}
+
+                    <div class="mb-3">
+                        {{ form_label(form.images) }}
+                        {{ form_widget(form.images) }}
+                        {{ form_errors(form.images) }}
+                        <div class="form-text">You can upload multiple images at once.</div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                        <a href="{{ path('app_user_profile') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+
+                    {{ form_end(form) }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,51 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: containers
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: docker
+          __path__: /var/lib/docker/containers/*/*-json.log
+    relabel_configs:
+      - source_labels: [__path__]
+        regex: '.*/([a-f0-9]{12})[a-f0-9]*/.*'
+        target_label: container_id
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+      - labels:
+          stream:
+      - output:
+          source: output
+      - json:
+          expressions:
+            _lvl: level
+      - template:
+          source: _lvl
+          template: >-
+            {{ if eq .Value "10" }}trace
+            {{ else if eq .Value "20" }}debug
+            {{ else if eq .Value "30" }}info
+            {{ else if eq .Value "40" }}warn
+            {{ else if eq .Value "50" }}error
+            {{ else if eq .Value "60" }}fatal
+            {{ else if eq .Value "100" }}debug
+            {{ else if eq .Value "200" }}info
+            {{ else if eq .Value "250" }}notice
+            {{ else if eq .Value "300" }}warning
+            {{ else if eq .Value "400" }}error
+            {{ else if eq .Value "500" }}critical
+            {{ else }}{{ end }}
+      - labels:
+          level: _lvl

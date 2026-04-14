@@ -1,0 +1,102 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    root_directory: '%kernel.project_dir%'
+    public_directory: '%root_directory%/public/'
+    # Trusted proxies for Symfony (Cloudflare ranges + any internal proxies)
+    SYMFONY_TRUSTED_PROXIES:
+        - '173.245.48.0/20'
+        - '103.21.244.0/22'
+        - '103.22.200.0/22'
+        - '103.31.4.0/22'
+        - '141.101.64.0/18'
+        - '108.162.192.0/18'
+        - '190.93.240.0/20'
+        - '188.114.96.0/20'
+        - '197.234.240.0/22'
+        - '198.41.128.0/17'
+        - '162.158.0.0/15'
+        - '104.16.0.0/12'
+        - '172.64.0.0/13'
+        - '131.0.72.0/22'
+        - '2400:cb00::/32'
+        - '2606:4700::/32'
+        - '2803:f800::/32'
+        - '2405:b500::/32'
+        - '2405:8100::/32'
+        - '2a06:98c0::/29'
+        - '2c0f:f248::/32'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    _instanceof:
+        App\Adapter\PlatformFieldProvider:
+            tags: ['app.platform_field_provider']
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    App\Service\ImageService:
+        arguments:
+            $publicDirectory: '%public_directory%'
+
+    App\Service\ArticleService:
+        arguments:
+            $publicDirectory: '%public_directory%'
+
+    App\MessageHandler\PublishHandler:
+        arguments:
+            $appSecret: '%env(APP_SECRET)%'
+            $internalAppUrl: '%env(INTERNAL_APP_URL)%'
+
+    App\MessageHandler\DeleteHandler:
+        arguments:
+            $appSecret: '%env(APP_SECRET)%'
+
+    App\MessageHandler\GroupImagesHandler:
+        arguments:
+            $internalAppUrl: '%env(INTERNAL_APP_URL)%'
+
+    App\MessageHandler\EnrichVehicleHandler:
+        arguments:
+            $internalAppUrl: '%env(INTERNAL_APP_URL)%'
+
+    GuzzleHttp\Client:
+        class: GuzzleHttp\Client
+
+    App\Logging\TraceIdProcessor:
+        tags:
+            - { name: monolog.processor }
+
+    App\Logging\LokiHandler:
+        class: App\Logging\LokiHandler
+
+    App\Adapter\PlatformFieldAggregator:
+        arguments:
+            $providers: !tagged_iterator app.platform_field_provider
+
+    App\Service\ForgotPasswordService:
+        arguments:
+            $appUrl: '%env(APP_URL)%'
+            $mailerFrom: '%env(MAILER_FROM)%'
+
+when@test:
+    services:
+        App\Service\ArticleService:
+            public: true
+            autowire: true
+            arguments:
+                $publicDirectory: '%public_directory%'
+

@@ -1,0 +1,45 @@
+framework:
+    messenger:
+        failure_transport: failed
+
+        buses:
+            messenger.bus.default:
+                middleware:
+                    - App\Messenger\TraceContextMiddleware
+                    - App\Messenger\ClickerCommandMiddleware
+
+        transports:
+            # Local doctrine transport for BE-internal messages (PublishMessage, DeleteMessage, etc.)
+            # Worker consumes this transport, handlers dispatch ClickerCommand to clicker_commands transport
+            local_async:
+                dsn: 'doctrine://default?queue_name=local_async&redeliver_timeout=300'
+                retry_strategy:
+                    max_retries: 1
+                    delay: 1000
+                    multiplier: 2
+
+            # Receive-only transport: listens for events published by the clicker and ai-agent (Node.js)
+            # Uses custom serializer to decode raw JSON (not Symfony's PHP envelope)
+            clicker_events:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                serializer: App\Messenger\ClickerEventSerializer
+                options:
+                    exchange: { name: clicker.events, type: topic }
+                    queues:
+                        be.clicker-events: { binding_keys: ['event.*'] }
+
+            # Publish-only transport: sends commands to clicker/ai-agent services as raw JSON
+            clicker_commands:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                serializer: App\Messenger\ClickerCommandSerializer
+                options:
+                    exchange: { name: clicker.actions, type: topic }
+
+            failed: 'doctrine://default?queue_name=failed'
+
+        routing:
+            'App\Message\PublishMessage': local_async
+            'App\Message\DeleteMessage': local_async
+            'App\Message\GroupImagesMessage': local_async
+            'App\Message\SuggestPriceMessage': local_async
+            'App\Message\ClickerCommand': clicker_commands

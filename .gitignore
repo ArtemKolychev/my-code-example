@@ -1,0 +1,18 @@
+.idea
+.mcp.json
+.claude/settings.local.json
+/src/be/node_modules/
+/src/workers/dist/src/
+
+.env
+src/clicker/.env.claude/worktrees/
+/.playwright-mcp
+/.env.prod
+
+# macOS Finder
+.DS_Store
+
+/src/frontend/node_modules/
+
+/src/clicker/src/adapters/seznam/test.spec.ts-snapshots
+/src/clicker/src/uploads

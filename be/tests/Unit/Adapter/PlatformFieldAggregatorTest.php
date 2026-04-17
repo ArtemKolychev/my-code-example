@@ -4,25 +4,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Adapter;
 
-use App\Adapter\PlatformFieldAggregator;
-use App\Adapter\PlatformFieldProvider;
-use App\Entity\Article;
-use App\Enum\Category;
-use App\Enum\Condition;
-use App\Enum\Platform;
+use App\Domain\Enum\Category;
+use App\Domain\Enum\Condition;
+use App\Domain\Enum\Platform;
+use App\Domain\Port\PlatformFieldProviderInterface;
+use App\Infrastructure\Adapter\PlatformFieldAggregator;
+use App\Tests\Shared\Mother\ArticleMother;
 use PHPUnit\Framework\TestCase;
 
 class PlatformFieldAggregatorTest extends TestCase
 {
-    private function makeProvider(Platform $platform, array $fields): PlatformFieldProvider
-    {
-        $mock = $this->createMock(PlatformFieldProvider::class);
-        $mock->method('getPlatform')->willReturn($platform);
-        $mock->method('getRequiredMetaFields')->willReturn($fields);
-
-        return $mock;
-    }
-
     // --- getMissingFields ---
 
     public function testGetMissingFieldsReturnsProviderFieldsWhenNotInMeta(): void
@@ -33,7 +24,7 @@ class PlatformFieldAggregatorTest extends TestCase
         ]);
         $aggregator = new PlatformFieldAggregator([$provider]);
 
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->category = Category::Clothing; // has 'size', 'condition' required
         $article->condition = Condition::Good; // condition set — not missing
 
@@ -52,7 +43,7 @@ class PlatformFieldAggregatorTest extends TestCase
         ]);
         $aggregator = new PlatformFieldAggregator([$provider]);
 
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->meta = ['brand' => 'Nike', 'size' => 'M'];
         $article->category = Category::Clothing;
         $article->condition = Condition::Good;
@@ -73,7 +64,7 @@ class PlatformFieldAggregatorTest extends TestCase
         ]);
         $aggregator = new PlatformFieldAggregator([$p1, $p2]);
 
-        $article = new Article();
+        $article = ArticleMother::any();
 
         $missing = $aggregator->getMissingFields($article);
 
@@ -87,7 +78,7 @@ class PlatformFieldAggregatorTest extends TestCase
     {
         $aggregator = new PlatformFieldAggregator([]);
 
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->category = Category::Car;
         // no meta, no condition
 
@@ -110,7 +101,7 @@ class PlatformFieldAggregatorTest extends TestCase
         ]);
         $aggregator = new PlatformFieldAggregator([$provider]);
 
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->meta = ['brand' => 'Nike']; // brand present
 
         $missing = $aggregator->getMissingFieldsForPlatform($article, Platform::Vinted);
@@ -122,7 +113,7 @@ class PlatformFieldAggregatorTest extends TestCase
     {
         $aggregator = new PlatformFieldAggregator([]);
 
-        $article = new Article();
+        $article = ArticleMother::any();
 
         $missing = $aggregator->getMissingFieldsForPlatform($article, Platform::Bazos);
 
@@ -134,7 +125,7 @@ class PlatformFieldAggregatorTest extends TestCase
     public function testGetCategoryMissingFieldsReturnsEmptyWhenNoCategorySet(): void
     {
         $aggregator = new PlatformFieldAggregator([]);
-        $article = new Article();
+        $article = ArticleMother::any();
 
         $this->assertSame([], $aggregator->getCategoryMissingFields($article));
     }
@@ -143,7 +134,7 @@ class PlatformFieldAggregatorTest extends TestCase
     {
         $aggregator = new PlatformFieldAggregator([]);
 
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->category = Category::Car;
         // no condition, no meta
 
@@ -159,7 +150,7 @@ class PlatformFieldAggregatorTest extends TestCase
     {
         $aggregator = new PlatformFieldAggregator([]);
 
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->category = Category::Car;
         $article->meta = ['brand' => 'BMW', 'model' => 'M3', 'year' => '2020'];
         // condition not set
@@ -173,7 +164,7 @@ class PlatformFieldAggregatorTest extends TestCase
     {
         $aggregator = new PlatformFieldAggregator([]);
 
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->category = Category::Car;
         $article->meta = ['brand' => 'Audi', 'model' => 'A4', 'year' => '2021'];
         $article->condition = Condition::VeryGood;
@@ -199,5 +190,15 @@ class PlatformFieldAggregatorTest extends TestCase
 
         $this->assertArrayHasKey('brand', $all);
         $this->assertArrayHasKey('phone', $all);
+    }
+
+    /** @param array<string, mixed> $fields */
+    private function makeProvider(Platform $platform, array $fields): PlatformFieldProviderInterface
+    {
+        $mock = $this->createMock(PlatformFieldProviderInterface::class);
+        $mock->method('getPlatform')->willReturn($platform);
+        $mock->method('getRequiredMetaFields')->willReturn($fields);
+
+        return $mock;
     }
 }

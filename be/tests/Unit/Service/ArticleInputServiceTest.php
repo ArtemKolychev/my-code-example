@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\Article;
-use App\Entity\User;
-use App\Enum\Category;
-use App\Enum\Condition;
-use App\Enum\Platform;
-use App\Message\ClickerCommand;
-use App\Message\EnrichVehicleMessage;
-use App\Message\PublishMessage;
-use App\Service\ArticleInputService;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Application\Command\ClickerCommand;
+use App\Application\Command\EnrichVehicleCommand;
+use App\Application\Command\PublishArticleCommand;
+use App\Application\Service\ArticleInputService;
+use App\Domain\Entity\User;
+use App\Domain\Enum\Category;
+use App\Domain\Enum\Condition;
+use App\Domain\Enum\Platform;
+use App\Domain\Repository\ArticleRepositoryInterface;
+use App\Tests\Shared\Mother\ArticleMother;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
@@ -21,46 +21,38 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class ArticleInputServiceTest extends TestCase
 {
-    private EntityManagerInterface&MockObject $em;
+    private ArticleRepositoryInterface&MockObject $articleRepository;
     private MessageBusInterface&MockObject $messageBus;
     private ArticleInputService $service;
-
-    protected function setUp(): void
-    {
-        $this->em = $this->createMock(EntityManagerInterface::class);
-        $this->messageBus = $this->createMock(MessageBusInterface::class);
-
-        $this->service = new ArticleInputService($this->em, $this->messageBus);
-    }
 
     // --- handleMetaFieldsInput ---
 
     public function testHandleMetaFieldsInputReturnsErrorWhenFieldsEmpty(): void
     {
-        $article = new Article();
+        $article = ArticleMother::any();
         $user = $this->createMock(User::class);
 
         $result = $this->service->handleMetaFieldsInput($article, $user, []);
 
         $this->assertFalse($result['success']);
-        $this->assertStringContainsString('required', $result['error']);
+        $this->assertStringContainsString('required', $result['error'] ?? '');
     }
 
     public function testHandleMetaFieldsInputReturnsErrorWhenPlatformUnknown(): void
     {
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->setPendingInput(['jobId' => 'unknownplatform_abc123']);
         $user = $this->createMock(User::class);
 
         $result = $this->service->handleMetaFieldsInput($article, $user, ['foo' => 'bar']);
 
         $this->assertFalse($result['success']);
-        $this->assertStringContainsString('platform', $result['error']);
+        $this->assertStringContainsString('platform', $result['error'] ?? '');
     }
 
     public function testHandleMetaFieldsInputMergesMetaAndDispatchesPublish(): void
     {
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->id = 10;
         $article->setPendingInput(['jobId' => 'seznam_abc123']);
         $article->setMeta(['existing' => 'value']);
@@ -68,14 +60,14 @@ class ArticleInputServiceTest extends TestCase
         $user = $this->createMock(User::class);
         $user->method('getId')->willReturn(42);
 
-        $this->em->expects($this->once())->method('flush');
+        $this->articleRepository->expects($this->once())->method('save');
 
         $dispatchedMessage = null;
         $this->messageBus
             ->expects($this->once())
             ->method('dispatch')
-            ->with($this->isInstanceOf(PublishMessage::class))
-            ->willReturnCallback(function (object $msg) use (&$dispatchedMessage) {
+            ->with($this->isInstanceOf(PublishArticleCommand::class))
+            ->willReturnCallback(function (object $msg) use (&$dispatchedMessage): Envelope {
                 $dispatchedMessage = $msg;
 
                 return new Envelope($msg);
@@ -86,20 +78,21 @@ class ArticleInputServiceTest extends TestCase
         $this->assertTrue($result['success']);
         $this->assertSame(['existing' => 'value', 'brand' => 'Toyota'], $article->getMeta());
         $this->assertNull($article->getPendingInput());
-        $this->assertInstanceOf(PublishMessage::class, $dispatchedMessage);
+        $this->assertInstanceOf(PublishArticleCommand::class, $dispatchedMessage);
         $this->assertSame(Platform::Seznam, $dispatchedMessage->getPlatform());
     }
 
     public function testHandleMetaFieldsInputDoesNotDispatchWhenArticleIdNull(): void
     {
-        $article = new Article(); // id is null
+        $article = ArticleMother::any();
+        $article->id = null; // id is null
         $article->setPendingInput(['jobId' => 'bazos_xyz']);
 
         $user = $this->createMock(User::class);
         $user->method('getId')->willReturn(1);
 
         $this->messageBus->expects($this->never())->method('dispatch');
-        $this->em->expects($this->once())->method('flush');
+        $this->articleRepository->expects($this->once())->method('save');
 
         $result = $this->service->handleMetaFieldsInput($article, $user, ['price' => '500']);
 
@@ -110,7 +103,7 @@ class ArticleInputServiceTest extends TestCase
 
     public function testHandleCategoryFieldsInputReturnsErrorWhenFieldsEmpty(): void
     {
-        $article = new Article();
+        $article = ArticleMother::any();
 
         $result = $this->service->handleCategoryFieldsInput($article, []);
 
@@ -119,32 +112,32 @@ class ArticleInputServiceTest extends TestCase
 
     public function testHandleCategoryFieldsInputReturnsErrorWhenNoCategorySet(): void
     {
-        $article = new Article(); // no category
+        $article = ArticleMother::any(); // no category
 
         $result = $this->service->handleCategoryFieldsInput($article, ['brand' => 'BMW']);
 
         $this->assertFalse($result['success']);
-        $this->assertStringContainsString('category', $result['error']);
+        $this->assertStringContainsString('category', $result['error'] ?? '');
     }
 
     public function testHandleCategoryFieldsInputReturnsErrorForInvalidCondition(): void
     {
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->category = Category::Car;
 
         $result = $this->service->handleCategoryFieldsInput($article, ['condition' => 'broken']);
 
         $this->assertFalse($result['success']);
-        $this->assertStringContainsString('condition', $result['error']);
+        $this->assertStringContainsString('condition', $result['error'] ?? '');
     }
 
     public function testHandleCategoryFieldsInputSetsConditionAndMergesMeta(): void
     {
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->category = Category::Car;
         $article->setPendingInput(['jobId' => 'x']);
 
-        $this->em->expects($this->once())->method('flush');
+        $this->articleRepository->expects($this->once())->method('save');
 
         $result = $this->service->handleCategoryFieldsInput($article, [
             'condition' => 'good',
@@ -160,10 +153,10 @@ class ArticleInputServiceTest extends TestCase
 
     public function testHandleCategoryFieldsInputSkipsNullAndEmptyValues(): void
     {
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->category = Category::Electronics;
 
-        $this->em->method('flush');
+        $this->articleRepository->method('save');
 
         $result = $this->service->handleCategoryFieldsInput($article, [
             'brand' => 'Sony',
@@ -179,24 +172,24 @@ class ArticleInputServiceTest extends TestCase
 
     public function testHandleVinOrSpzInputDispatchesVinWhenValidVin(): void
     {
-        $article = new Article();
+        $article = ArticleMother::any();
         $vin = 'WBA3A5C51DF354762'; // 17-char valid VIN pattern
 
         $dispatchedMessage = null;
         $this->messageBus
             ->expects($this->once())
             ->method('dispatch')
-            ->willReturnCallback(function (object $msg) use (&$dispatchedMessage) {
+            ->willReturnCallback(function (object $msg) use (&$dispatchedMessage): Envelope {
                 $dispatchedMessage = $msg;
 
                 return new Envelope($msg);
             });
 
-        $this->em->expects($this->once())->method('flush');
+        $this->articleRepository->expects($this->once())->method('save');
 
         $this->service->handleVinOrSpzInput($article, 99, $vin);
 
-        $this->assertInstanceOf(EnrichVehicleMessage::class, $dispatchedMessage);
+        $this->assertInstanceOf(EnrichVehicleCommand::class, $dispatchedMessage);
         $this->assertSame(strtoupper($vin), $dispatchedMessage->getVin());
         $this->assertNull($dispatchedMessage->getSpz());
         $this->assertNull($article->getPendingInput());
@@ -204,24 +197,24 @@ class ArticleInputServiceTest extends TestCase
 
     public function testHandleVinOrSpzInputDispatchesSpzWhenNotVin(): void
     {
-        $article = new Article();
+        $article = ArticleMother::any();
         $spz = '1AB2345';
 
         $dispatchedMessage = null;
         $this->messageBus
             ->expects($this->once())
             ->method('dispatch')
-            ->willReturnCallback(function (object $msg) use (&$dispatchedMessage) {
+            ->willReturnCallback(function (object $msg) use (&$dispatchedMessage): Envelope {
                 $dispatchedMessage = $msg;
 
                 return new Envelope($msg);
             });
 
-        $this->em->method('flush');
+        $this->articleRepository->method('save');
 
         $this->service->handleVinOrSpzInput($article, 5, $spz);
 
-        $this->assertInstanceOf(EnrichVehicleMessage::class, $dispatchedMessage);
+        $this->assertInstanceOf(EnrichVehicleCommand::class, $dispatchedMessage);
         $this->assertNull($dispatchedMessage->getVin());
         $this->assertSame($spz, $dispatchedMessage->getSpz());
     }
@@ -230,7 +223,7 @@ class ArticleInputServiceTest extends TestCase
 
     public function testHandleCodeInputDispatchesClickerCommandAndClearsPendingInput(): void
     {
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->setPendingInput(['inputType' => 'code']);
 
         $dispatchedMessage = null;
@@ -238,16 +231,24 @@ class ArticleInputServiceTest extends TestCase
             ->expects($this->once())
             ->method('dispatch')
             ->with($this->isInstanceOf(ClickerCommand::class))
-            ->willReturnCallback(function (object $msg) use (&$dispatchedMessage) {
+            ->willReturnCallback(function (object $msg) use (&$dispatchedMessage): Envelope {
                 $dispatchedMessage = $msg;
 
                 return new Envelope($msg);
             });
 
-        $this->em->expects($this->once())->method('flush');
+        $this->articleRepository->expects($this->once())->method('save');
 
         $this->service->handleCodeInput($article, 'seznam_job1', '12345');
 
         $this->assertNull($article->getPendingInput());
+    }
+
+    protected function setUp(): void
+    {
+        $this->articleRepository = $this->createMock(ArticleRepositoryInterface::class);
+        $this->messageBus = $this->createMock(MessageBusInterface::class);
+
+        $this->service = new ArticleInputService($this->articleRepository, $this->messageBus);
     }
 }

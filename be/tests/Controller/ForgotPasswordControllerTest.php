@@ -4,55 +4,41 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
-use App\Entity\User;
+use App\Domain\Entity\User;
 use App\Kernel;
+use App\Tests\Shared\Mother\UserMother;
 use DateTimeImmutable;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use Override;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class ForgotPasswordControllerTest extends WebTestCase
 {
     private KernelBrowser $client;
 
+    #[Override]
     protected static function getKernelClass(): string
     {
         return Kernel::class;
     }
 
-    protected function setUp(): void
-    {
-        $this->client = static::createClient();
-        $container = static::getContainer();
-        $em = $container->get('doctrine.orm.entity_manager');
-        $userRepository = $em->getRepository(User::class);
-
-        foreach ($userRepository->findAll() as $user) {
-            $em->remove($user);
-        }
-
-        $em->flush();
-
-        /** @var UserPasswordHasherInterface $passwordHasher */
-        $passwordHasher = $container->get('security.user_password_hasher');
-
-        $user = (new User())->setEmail('user@example.com');
-        $user->setPassword($passwordHasher->hashPassword($user, 'password'));
-
-        $em->persist($user);
-        $em->flush();
-    }
-
     public function testGetForgotPasswordReturns200(): void
     {
-        $this->client->request('GET', '/forgot-password');
+        $this->client->request(Request::METHOD_GET, '/forgot-password');
 
         self::assertResponseIsSuccessful();
     }
 
     public function testPostForgotPasswordWithKnownEmailRedirectsWithFlash(): void
     {
-        $this->client->request('POST', '/forgot-password', ['email' => 'user@example.com']);
+        $this->client->request(Request::METHOD_GET, '/forgot-password');
+        $this->client->submitForm('Send reset link', [
+            'forgot_password[email]' => 'user@example.com',
+        ]);
 
         self::assertResponseRedirects('/forgot-password');
         $this->client->followRedirect();
@@ -62,7 +48,10 @@ class ForgotPasswordControllerTest extends WebTestCase
 
     public function testPostForgotPasswordWithUnknownEmailShowsSameMessage(): void
     {
-        $this->client->request('POST', '/forgot-password', ['email' => 'nobody@example.com']);
+        $this->client->request(Request::METHOD_GET, '/forgot-password');
+        $this->client->submitForm('Send reset link', [
+            'forgot_password[email]' => 'nobody@example.com',
+        ]);
 
         self::assertResponseRedirects('/forgot-password');
         $this->client->followRedirect();
@@ -73,7 +62,7 @@ class ForgotPasswordControllerTest extends WebTestCase
 
     public function testGetResetPasswordWithInvalidTokenRedirectsWithError(): void
     {
-        $this->client->request('GET', '/reset-password/invalidtoken');
+        $this->client->request(Request::METHOD_GET, '/reset-password/invalidtoken');
 
         self::assertResponseRedirects('/forgot-password');
         $this->client->followRedirect();
@@ -85,7 +74,7 @@ class ForgotPasswordControllerTest extends WebTestCase
     {
         $token = $this->createValidTokenForUser('user@example.com');
 
-        $this->client->request('GET', '/reset-password/'.$token);
+        $this->client->request(Request::METHOD_GET, '/reset-password/'.$token);
 
         self::assertResponseIsSuccessful();
     }
@@ -94,7 +83,7 @@ class ForgotPasswordControllerTest extends WebTestCase
     {
         $expiredToken = $this->createExpiredTokenForUser('user@example.com');
 
-        $this->client->request('GET', '/reset-password/'.$expiredToken);
+        $this->client->request(Request::METHOD_GET, '/reset-password/'.$expiredToken);
 
         self::assertResponseRedirects('/forgot-password');
         $this->client->followRedirect();
@@ -106,9 +95,10 @@ class ForgotPasswordControllerTest extends WebTestCase
     {
         $token = $this->createValidTokenForUser('user@example.com');
 
-        $this->client->request('POST', '/reset-password/'.$token, [
-            'password' => 'newpassword123',
-            'confirm_password' => 'newpassword123',
+        $this->client->request(Request::METHOD_GET, '/reset-password/'.$token);
+        $this->client->submitForm('Reset password', [
+            'reset_password[password][first]' => 'newpassword123',
+            'reset_password[password][second]' => 'newpassword123',
         ]);
 
         self::assertResponseRedirects('/login');
@@ -118,8 +108,10 @@ class ForgotPasswordControllerTest extends WebTestCase
 
         // Reset the identity map so we read from DB, not from in-memory cache
         $container = static::getContainer();
+        /** @var ManagerRegistry $doctrine */
         $doctrine = $container->get('doctrine');
         $doctrine->resetManager();
+        /** @var EntityManagerInterface $em */
         $em = $doctrine->getManager();
         $user = $em->getRepository(User::class)->findOneBy(['email' => 'user@example.com']);
 
@@ -132,18 +124,15 @@ class ForgotPasswordControllerTest extends WebTestCase
     {
         $token = $this->createValidTokenForUser('user@example.com');
 
-        $this->client->request('POST', '/reset-password/'.$token, [
-            'password' => 'newpassword123',
-            'confirm_password' => 'newpassword123',
+        $this->client->request(Request::METHOD_GET, '/reset-password/'.$token);
+        $this->client->submitForm('Reset password', [
+            'reset_password[password][first]' => 'newpassword123',
+            'reset_password[password][second]' => 'newpassword123',
         ]);
         self::assertResponseRedirects('/login');
 
-        // Second attempt with the same token must fail
-        $this->client->request('POST', '/reset-password/'.$token, [
-            'password' => 'anotherpassword456',
-            'confirm_password' => 'anotherpassword456',
-        ]);
-
+        // Second attempt with the same token must fail (token was consumed)
+        $this->client->request(Request::METHOD_GET, '/reset-password/'.$token);
         self::assertResponseRedirects('/forgot-password');
         $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-danger', 'invalid or has expired');
@@ -153,14 +142,15 @@ class ForgotPasswordControllerTest extends WebTestCase
     {
         $token = $this->createValidTokenForUser('user@example.com');
 
-        $this->client->request('POST', '/reset-password/'.$token, [
-            'password' => 'newpassword123',
-            'confirm_password' => 'newpassword123',
+        $this->client->request(Request::METHOD_GET, '/reset-password/'.$token);
+        $this->client->submitForm('Reset password', [
+            'reset_password[password][first]' => 'newpassword123',
+            'reset_password[password][second]' => 'newpassword123',
         ]);
         self::assertResponseRedirects('/login');
 
         // Attempt login with new password
-        $this->client->request('POST', '/login', [
+        $this->client->request(Request::METHOD_POST, '/login', [
             '_username' => 'user@example.com',
             '_password' => 'newpassword123',
         ]);
@@ -175,14 +165,39 @@ class ForgotPasswordControllerTest extends WebTestCase
     {
         $token = $this->createValidTokenForUser('user@example.com');
 
-        $this->client->request('POST', '/reset-password/'.$token, [
-            'password' => 'newpassword123',
-            'confirm_password' => 'differentpassword',
+        $this->client->request(Request::METHOD_GET, '/reset-password/'.$token);
+        $this->client->submitForm('Reset password', [
+            'reset_password[password][first]' => 'newpassword123',
+            'reset_password[password][second]' => 'differentpassword',
         ]);
 
-        // Should re-render the form with an error, not redirect to login
-        self::assertResponseIsSuccessful();
+        // Should re-render the form with an error (422 = form validation failed), not redirect to login
+        self::assertResponseStatusCodeSame(422);
         self::assertSelectorExists('form');
+    }
+
+    protected function setUp(): void
+    {
+        $this->client = static::createClient();
+        $container = static::getContainer();
+        /** @var EntityManagerInterface $em */
+        $em = $container->get('doctrine.orm.entity_manager');
+        $userRepository = $em->getRepository(User::class);
+
+        foreach ($userRepository->findAll() as $user) {
+            $em->remove($user);
+        }
+
+        $em->flush();
+
+        /** @var UserPasswordHasherInterface $passwordHasher */
+        $passwordHasher = $container->get('security.user_password_hasher');
+
+        $user = UserMother::withEmail('user@example.com');
+        $user->setPassword($passwordHasher->hashPassword($user, 'password'));
+
+        $em->persist($user);
+        $em->flush();
     }
 
     private function createValidTokenForUser(string $email): string
@@ -191,7 +206,9 @@ class ForgotPasswordControllerTest extends WebTestCase
         $hashedToken = hash('sha256', $rawToken);
 
         $container = static::getContainer();
+        /** @var EntityManagerInterface $em */
         $em = $container->get('doctrine.orm.entity_manager');
+        /** @var User $user */
         $user = $em->getRepository(User::class)->findOneBy(['email' => $email]);
 
         $user->setResetPasswordToken($hashedToken);
@@ -207,7 +224,9 @@ class ForgotPasswordControllerTest extends WebTestCase
         $hashedToken = hash('sha256', $rawToken);
 
         $container = static::getContainer();
+        /** @var EntityManagerInterface $em */
         $em = $container->get('doctrine.orm.entity_manager');
+        /** @var User $user */
         $user = $em->getRepository(User::class)->findOneBy(['email' => $email]);
 
         $user->setResetPasswordToken($hashedToken);

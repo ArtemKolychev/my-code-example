@@ -4,25 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Registry;
 
-use App\Enum\Category;
-use App\Registry\CategoryFieldRegistry;
+use App\Domain\Enum\Category;
+use App\Domain\Registry\CategoryFieldRegistry;
 use PHPUnit\Framework\TestCase;
 
 class CategoryFieldRegistryTest extends TestCase
 {
-    private function fieldKeys(array $fields): array
-    {
-        return array_column($fields, 'key');
-    }
-
-    private function requiredKeys(array $fields): array
-    {
-        return array_column(
-            array_filter($fields, static fn ($f) => $f['required']),
-            'key'
-        );
-    }
-
     public function testCarHasRequiredBrandModelYear(): void
     {
         $fields = CategoryFieldRegistry::getFields(Category::Car);
@@ -41,11 +28,11 @@ class CategoryFieldRegistryTest extends TestCase
         $this->assertArrayHasKey('fuel_type', $byKey);
         $this->assertSame('select', $byKey['fuel_type']['type']);
         $this->assertArrayHasKey('options', $byKey['fuel_type']);
-        $this->assertArrayHasKey('petrol', $byKey['fuel_type']['options']);
+        $this->assertArrayHasKey('petrol', $byKey['fuel_type']['options'] ?? []);
 
         $this->assertArrayHasKey('body_type', $byKey);
         $this->assertSame('select', $byKey['body_type']['type']);
-        $this->assertArrayHasKey('suv', $byKey['body_type']['options']);
+        $this->assertArrayHasKey('suv', $byKey['body_type']['options'] ?? []);
     }
 
     public function testTruckHasRequiredBrandModelYear(): void
@@ -65,7 +52,7 @@ class CategoryFieldRegistryTest extends TestCase
 
         $this->assertArrayHasKey('moto_type', $byKey);
         $this->assertSame('select', $byKey['moto_type']['type']);
-        $this->assertArrayHasKey('scooter', $byKey['moto_type']['options']);
+        $this->assertArrayHasKey('scooter', $byKey['moto_type']['options'] ?? []);
     }
 
     public function testClothingRequiresSizeNotBrand(): void
@@ -84,7 +71,7 @@ class CategoryFieldRegistryTest extends TestCase
 
         $this->assertArrayHasKey('gender', $byKey);
         $this->assertSame('select', $byKey['gender']['type']);
-        $this->assertArrayHasKey('female', $byKey['gender']['options']);
+        $this->assertArrayHasKey('female', $byKey['gender']['options'] ?? []);
     }
 
     public function testMobilePhoneRequiresBrandAndModel(): void
@@ -150,5 +137,34 @@ class CategoryFieldRegistryTest extends TestCase
                 $this->assertArrayHasKey('required', $field, "Missing 'required' in {$category->value}");
             }
         }
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $fields
+     *
+     * @return list<string>
+     */
+    private function fieldKeys(array $fields): array
+    {
+        /** @var list<string> $keys */
+        $keys = array_column($fields, 'key');
+
+        return $keys;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $fields
+     *
+     * @return list<string>
+     */
+    private function requiredKeys(array $fields): array
+    {
+        /** @var list<string> $keys */
+        $keys = array_column(
+            array_filter($fields, static fn (array $f): bool => (bool) ($f['required'] ?? false)),
+            'key'
+        );
+
+        return $keys;
     }
 }

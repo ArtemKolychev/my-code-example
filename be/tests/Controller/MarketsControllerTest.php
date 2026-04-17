@@ -4,60 +4,43 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
-use App\Entity\ImageBatch;
-use App\Entity\User;
+use App\Application\Service\ImageUploadService;
+use App\Domain\Entity\User;
 use App\Kernel;
-use App\Service\ArticleService;
+use App\Tests\Shared\Mother\ImageBatchMother;
+use App\Tests\Shared\Mother\UserMother;
+use Doctrine\ORM\EntityManagerInterface;
+use Override;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 
-class MarketsControllerTest extends WebTestCase
+final class MarketsControllerTest extends WebTestCase
 {
     private KernelBrowser $client;
     private User $user;
 
+    #[Override]
     protected static function getKernelClass(): string
     {
         return Kernel::class;
-    }
-
-    protected function setUp(): void
-    {
-        $this->client = static::createClient();
-
-        $em = static::getContainer()->get('doctrine.orm.entity_manager');
-
-        foreach ($em->getRepository(User::class)->findAll() as $existing) {
-            $em->remove($existing);
-        }
-        $em->flush();
-
-        $this->user = (new User())
-            ->setEmail('market@example.com')
-            ->setPassword('irrelevant');
-
-        $em->persist($this->user);
-        $em->flush();
     }
 
     public function testAddImagesSubmitsUploadedFilesAndRedirectsToProcessing(): void
     {
         $this->client->loginUser($this->user);
 
-        $batch = new ImageBatch();
-        $batch->id = 321;
+        $batch = ImageBatchMother::withId(321);
 
-        /** @var ArticleService&MockObject $articleService */
-        $articleService = $this->createMock(ArticleService::class);
-        $articleService
+        /** @var ImageUploadService&MockObject $imageUploadService */
+        $imageUploadService = $this->createMock(ImageUploadService::class);
+        $imageUploadService
             ->expects($this->once())
             ->method('uploadImages')
             ->with(
-                $this->callback(static function (array $images): bool {
-                    return 1 === count($images) && $images[0] instanceof UploadedFile;
-                }),
+                $this->callback(static fn (array $images): bool => 1 === count($images) && $images[0] instanceof UploadedFile),
                 $this->isInstanceOf(User::class),
             )
             ->willReturn($batch);
@@ -65,9 +48,9 @@ class MarketsControllerTest extends WebTestCase
         // Disable kernel reboot so the mock persists across both GET and POST requests.
         // By default KernelBrowser reboots between requests, which would wipe the mock.
         $this->client->disableReboot();
-        static::getContainer()->set(ArticleService::class, $articleService);
+        static::getContainer()->set(ImageUploadService::class, $imageUploadService);
 
-        $crawler = $this->client->request('GET', '/market/article/add_images');
+        $crawler = $this->client->request(Request::METHOD_GET, '/market/article/add_images');
         self::assertResponseIsSuccessful();
 
         $token = $crawler->filter('input[name="add_article_images[_token]"]')->attr('value');
@@ -87,7 +70,7 @@ class MarketsControllerTest extends WebTestCase
 
         try {
             $this->client->request(
-                'POST',
+                Request::METHOD_POST,
                 '/market/article/add_images',
                 [
                     'add_article_images' => [
@@ -107,5 +90,26 @@ class MarketsControllerTest extends WebTestCase
         }
 
         self::assertResponseRedirects('/market/processing/321');
+    }
+
+    protected function setUp(): void
+    {
+        $this->client = static::createClient();
+
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get('doctrine.orm.entity_manager');
+
+        foreach ($em->getRepository(User::class)->findAll() as $existing) {
+            $em->remove($existing);
+        }
+        $em->flush();
+
+        $this->user = UserMother::withEmail('market@example.com')
+            ->setPassword('irrelevant');
+
+        $em->persist($this->user);
+        $em->flush();
     }
 }

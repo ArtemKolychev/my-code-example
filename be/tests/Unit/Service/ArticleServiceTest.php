@@ -4,37 +4,23 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
 
-use App\DTO\Request\EditArticleRequest;
-use App\Entity\Article;
-use App\Entity\Image;
-use App\Entity\User;
-use App\Service\ArticleService;
-use App\Service\ImageService;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Application\DTO\Request\EditArticleRequest;
+use App\Application\Service\ArticleService;
+use App\Application\Service\ImageServiceInterface;
+use App\Domain\Entity\User;
+use App\Domain\Repository\ArticleRepositoryInterface;
+use App\Domain\Repository\ImageRepositoryInterface;
+use App\Tests\Shared\Mother\ArticleMother;
+use App\Tests\Shared\Mother\ImageMother;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 class ArticleServiceTest extends TestCase
 {
-    private EntityManagerInterface&MockObject $em;
-    private ImageService&MockObject $imageService;
-    private MessageBusInterface&MockObject $messageBus;
+    private ArticleRepositoryInterface&MockObject $articleRepository;
+    private ImageRepositoryInterface&MockObject $imageRepository;
+    private ImageServiceInterface&MockObject $imageService;
     private ArticleService $service;
-
-    protected function setUp(): void
-    {
-        $this->em = $this->createMock(EntityManagerInterface::class);
-        $this->imageService = $this->createMock(ImageService::class);
-        $this->messageBus = $this->createMock(MessageBusInterface::class);
-
-        $this->service = new ArticleService(
-            $this->em,
-            $this->imageService,
-            $this->messageBus,
-            '/tmp/public',
-        );
-    }
 
     public function testCreateArticlesFromGroupsReturnsEmptyWhenNoGroups(): void
     {
@@ -47,7 +33,7 @@ class ArticleServiceTest extends TestCase
 
     public function testUpdateArticleSetsFieldsAndFlushes(): void
     {
-        $article = new Article();
+        $article = ArticleMother::any();
         $article->setTitle('Old Title');
         $article->setDescription('Old Desc');
 
@@ -57,8 +43,7 @@ class ArticleServiceTest extends TestCase
             price: 42.0,
         );
 
-        $this->em->expects($this->once())->method('persist');
-        $this->em->expects($this->once())->method('flush');
+        $this->articleRepository->expects($this->once())->method('save')->with($article);
 
         $this->service->updateArticle($article, $request);
 
@@ -69,24 +54,36 @@ class ArticleServiceTest extends TestCase
 
     public function testDeleteArticleRemovesAndFlushes(): void
     {
-        $article = new Article();
+        $article = ArticleMother::any();
 
-        $this->em->expects($this->once())->method('remove')->with($article);
-        $this->em->expects($this->once())->method('flush');
+        $this->articleRepository->expects($this->once())->method('remove')->with($article);
 
         $this->service->deleteArticle($article);
     }
 
     public function testDeleteImageRemovesEntityAndFile(): void
     {
-        $image = new Image();
+        $image = ImageMother::any();
         $image->setLink('uploads/images/1/test.jpeg');
 
-        $this->em->expects($this->once())->method('remove')->with($image);
+        $this->imageRepository->expects($this->once())->method('remove')->with($image);
         $this->imageService->expects($this->once())->method('deleteImageFile')
             ->with('/tmp/public/uploads/images/1/test.jpeg');
-        $this->em->expects($this->once())->method('flush');
 
         $this->service->deleteImage($image);
+    }
+
+    protected function setUp(): void
+    {
+        $this->articleRepository = $this->createMock(ArticleRepositoryInterface::class);
+        $this->imageRepository = $this->createMock(ImageRepositoryInterface::class);
+        $this->imageService = $this->createMock(ImageServiceInterface::class);
+
+        $this->service = new ArticleService(
+            $this->articleRepository,
+            $this->imageRepository,
+            $this->imageService,
+            '/tmp/public',
+        );
     }
 }

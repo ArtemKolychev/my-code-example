@@ -4,47 +4,30 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
 
-use App\Entity\User;
-use App\Repository\UserRepository;
-use App\Service\ForgotPasswordService;
+use App\Application\Service\ForgotPasswordService;
+use App\Domain\Repository\UserRepositoryInterface;
+use App\Tests\Shared\Mother\UserMother;
 use DateTimeImmutable;
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Clock\Clock;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Twig\Environment;
 
 class ForgotPasswordServiceTest extends TestCase
 {
-    private UserRepository&MockObject $userRepository;
-    private EntityManagerInterface&MockObject $entityManager;
+    private UserRepositoryInterface&MockObject $userRepository;
     private MailerInterface&MockObject $mailer;
     private Environment&MockObject $twig;
+    private UserPasswordHasherInterface&MockObject $passwordHasher;
     private ForgotPasswordService $service;
-
-    protected function setUp(): void
-    {
-        $this->userRepository = $this->createMock(UserRepository::class);
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->mailer = $this->createMock(MailerInterface::class);
-        $this->twig = $this->createMock(Environment::class);
-
-        $this->service = new ForgotPasswordService(
-            $this->userRepository,
-            $this->entityManager,
-            $this->mailer,
-            $this->twig,
-            appUrl: 'https://example.com',
-            mailerFrom: 'noreply@example.com',
-        );
-    }
 
     public function testCreateResetTokenGeneratesTokenAndSetsExpiryAndSendsEmail(): void
     {
-        $user = new User();
-        $user->setEmail('user@example.com');
+        $user = UserMother::withEmail('user@example.com');
 
-        $this->entityManager->expects($this->once())->method('flush');
+        $this->userRepository->expects($this->once())->method('save')->with($user);
         $this->twig->method('render')->willReturn('<html>reset</html>');
         $this->mailer->expects($this->once())->method('send');
 
@@ -61,14 +44,13 @@ class ForgotPasswordServiceTest extends TestCase
         $rawToken = bin2hex(random_bytes(32));
         $hashedToken = hash('sha256', $rawToken);
 
-        $user = new User();
-        $user->setEmail('user@example.com');
+        $user = UserMother::withEmail('user@example.com');
         $user->setResetPasswordToken($hashedToken);
         $user->setResetPasswordTokenExpiresAt(new DateTimeImmutable('+30 minutes'));
 
         $this->userRepository
-            ->method('findOneBy')
-            ->with(['resetPasswordToken' => $hashedToken])
+            ->method('findByResetToken')
+            ->with($hashedToken)
             ->willReturn($user);
 
         $result = $this->service->validateToken($rawToken);
@@ -81,20 +63,18 @@ class ForgotPasswordServiceTest extends TestCase
         $rawToken = bin2hex(random_bytes(32));
         $hashedToken = hash('sha256', $rawToken);
 
-        $user = new User();
-        $user->setEmail('user@example.com');
+        $user = UserMother::withEmail('user@example.com');
         $user->setResetPasswordToken($hashedToken);
         $user->setResetPasswordTokenExpiresAt(new DateTimeImmutable('-1 hour'));
 
         $this->userRepository
             ->expects($this->once())
-            ->method('findOneBy')
-            ->with(['resetPasswordToken' => $hashedToken])
+            ->method('findByResetToken')
+            ->with($hashedToken)
             ->willReturn($user);
 
         $result = $this->service->validateToken($rawToken);
 
-        // Token was found in DB but rejected due to expiry
         $this->assertNull($result);
     }
 
@@ -104,8 +84,8 @@ class ForgotPasswordServiceTest extends TestCase
         $hashedToken = hash('sha256', $rawToken);
 
         $this->userRepository
-            ->method('findOneBy')
-            ->with(['resetPasswordToken' => $hashedToken])
+            ->method('findByResetToken')
+            ->with($hashedToken)
             ->willReturn(null);
 
         $result = $this->service->validateToken($rawToken);
@@ -115,16 +95,33 @@ class ForgotPasswordServiceTest extends TestCase
 
     public function testClearTokenNullifiesBothFields(): void
     {
-        $user = new User();
-        $user->setEmail('user@example.com');
+        $user = UserMother::withEmail('user@example.com');
         $user->setResetPasswordToken(hash('sha256', 'sometoken'));
         $user->setResetPasswordTokenExpiresAt(new DateTimeImmutable('+1 hour'));
 
-        $this->entityManager->expects($this->once())->method('flush');
+        $this->userRepository->expects($this->once())->method('save')->with($user);
 
         $this->service->clearToken($user);
 
         $this->assertNull($user->getResetPasswordToken());
         $this->assertNull($user->getResetPasswordTokenExpiresAt());
+    }
+
+    protected function setUp(): void
+    {
+        $this->userRepository = $this->createMock(UserRepositoryInterface::class);
+        $this->mailer = $this->createMock(MailerInterface::class);
+        $this->twig = $this->createMock(Environment::class);
+        $this->passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
+
+        $this->service = new ForgotPasswordService(
+            $this->userRepository,
+            $this->mailer,
+            $this->twig,
+            appUrl: 'https://example.com',
+            mailerFrom: 'noreply@example.com',
+            clock: new Clock(),
+            userPasswordHasher: $this->passwordHasher,
+        );
     }
 }

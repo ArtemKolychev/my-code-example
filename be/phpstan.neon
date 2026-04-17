@@ -1,6 +1,54 @@
+includes:
+    - vendor/tomasvotruba/cognitive-complexity/config/extension.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpat/phpat/extension.neon
+
 parameters:
-    level: 5
+    level: max
     paths:
         - src
+        - tests
     excludePaths:
         - src/Kernel.php
+    cognitive_complexity:
+        class: 25
+        function: 8
+    phpat:
+        show_rule_names: true
+
+services:
+    -
+        class: Tests\Architecture\LayerBoundaryTest
+        tags:
+            - phpat.test
+
+    # Custom architecture rules — enforce enum-over-string and no mutable static state
+    -
+        class: App\Tests\PHPStan\NoMutableStaticPropertiesRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: App\Tests\PHPStan\NoStringLiteralPropertyDefaultRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: App\Tests\PHPStan\NoErrorSuppressionRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: App\Tests\PHPStan\HandlersMustBeReadonlyRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: App\Tests\PHPStan\FormTypesMustBeFinalRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: App\Tests\PHPStan\ApplicationDtosMustBeFinalReadonlyRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: App\Tests\PHPStan\NoRepositoryCallInLoopRule
+        tags:
+            - phpstan.rules.rule

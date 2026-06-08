@@ -16,3 +16,4 @@ storage/framework/views/
 bootstrap/cache/
 /src/backend/.phpunit.result.cache
 /docs/
+/.serena/

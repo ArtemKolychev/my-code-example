@@ -2,7 +2,7 @@
 
 ## Stack
 - Gateway: NestJS 11 (`src/gateway`) — JWT verify + routing only, no business logic
-- Backend: Laravel 12 + PHP 8.4 (`src/backend`) — modular monolith, hexagonal DDD per domain (`App\Auth\`, `App\Users\`, `App\Tenants\`)
+- Backend: Laravel 13 + PHP 8.4 (`src/backend`) — modular monolith, hexagonal DDD per domain (`App\Auth\`, `App\Users\`, `App\Tenants\`)
 - Frontend: Next.js 15 (`src/frontend`)
 - Queue: RabbitMQ 4 — mutations async (202+SSE), queries via HTTP proxy
 - DB: PostgreSQL 16, separate schema per module (`auth`, `users`, `tenants`)
@@ -36,7 +36,8 @@ make jwt-keys           # generate RSA key pair in docker/keys/
 make migrate            # run migrations for all modules
 make test               # all tests
 make lint               # PHPStan + PHPAt + ESLint
-make lint-fix           # auto-fix
+make lint-fix           # auto-fix (pint + eslint)
+make rector             # refactor via Rector (dry-run: make rector-dry)
 ```
 
 ## Skills
@@ -47,4 +48,4 @@ make lint-fix           # auto-fix
 - `vercel-optimize`       — Vercel/Next.js performance audits
 
 ## Architecture
-Full spec: `docs/superpowers/specs/2026-06-07-core-architecture-design.md`
+Full spec: `docs/superpowers/specs/2026-06-07-core-architecture-design.md` *(not yet created)*

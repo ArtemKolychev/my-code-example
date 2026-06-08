@@ -1,0 +1,689 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - img "Qodana product logo" [ref=e6]
+    - generic [ref=e12]:
+      - button "help menu" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15]:
+          - img
+      - switch "toggle dark theme" [checked] [ref=e16]:
+        - generic [ref=e19] [cursor=pointer]:
+          - generic [ref=e20]:
+            - img
+          - generic [ref=e21]:
+            - img
+  - main [ref=e22]:
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e27]: Get more features with Qodana Cloud ☁️ ✨
+        - generic [ref=e29]:
+          - text: "Currently you’re in the local Qodana report. Log in to Qodana Cloud, and you will be able to:"
+          - list [ref=e30]:
+            - listitem [ref=e31]: 📈 Monitor progress in your project and overview Qodana reports per each branch
+            - listitem [ref=e32]: 🚧 Set quality gates for managing your product quality
+            - listitem [ref=e33]: 👯 Use team dashboards to better collaborate with your teammates.
+        - button "Collapse" [ref=e34] [cursor=pointer]:
+          - generic [ref=e35]:
+            - img
+      - link "Log in to Qodana Cloud" [ref=e37] [cursor=pointer]:
+        - /url: https://qodana.cloud
+    - article [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - button "Actual problems 107" [ref=e244] [cursor=pointer]:
+              - generic [ref=e44]:
+                - heading "Actual problems" [level=2] [ref=e45]
+                - generic [ref=e248]: "107"
+            - button "Baseline 0 problems" [ref=e249] [cursor=pointer]:
+              - generic [ref=e50]:
+                - heading "Baseline" [level=2] [ref=e51]
+                - generic [ref=e250]:
+                  - generic [ref=e253]: "0"
+                  - generic [ref=e254]: problems
+            - button "Configuration 245 inspections" [ref=e255] [cursor=pointer]:
+              - generic [ref=e56]:
+                - heading "Configuration" [level=2] [ref=e57]
+                - generic [ref=e256]:
+                  - generic [ref=e259]: "245"
+                  - generic [ref=e260]: inspections
+            - button "License audit Not available" [ref=e261] [cursor=pointer]:
+              - generic [ref=e62]:
+                - heading "License audit" [level=2] [ref=e63]
+                - heading "Not available" [level=3] [ref=e262]
+          - generic [ref=e264]:
+            - generic [ref=e265]: "Code coverage:"
+            - generic [ref=e266]:
+              - text: Not set
+              - generic [ref=e268]:
+                - img
+        - generic [ref=e270]:
+          - generic [ref=e271]:
+            - generic [ref=e272]:
+              - generic [ref=e273]: 🔮 Suggested inspections
+              - button "Close" [ref=e274] [cursor=pointer]:
+                - generic [ref=e275]:
+                  - img
+            - generic [ref=e276]: We’ve discovered even more problems in your codebase. Explore Suggested Inspections and enable them if you find these problems important.
+          - button "Show problems" [ref=e278] [cursor=pointer]
+        - generic [ref=e74]:
+          - generic [ref=e279]:
+            - generic:
+              - generic:
+                - generic [ref=e280]: "107"
+                - generic "problems" [ref=e282]
+            - img [ref=e284]:
+              - generic [ref=e286]:
+                - generic [ref=e289]: High
+                - generic [ref=e292]: Moderate
+                - generic [ref=e295]: C...
+                - generic [ref=e300]: RegExp
+                - generic [ref=e303]: T...
+                - generic [ref=e306]: Undefined symbols
+                - generic [ref=e309]: Unused...
+                - generic [ref=e312]: G...
+                - generic [ref=e315]: P...
+                - generic [ref=e318]: Typ...
+                - generic [ref=e329]: S...
+                - generic [ref=e334]: E...
+                - generic [ref=e337]: Undefined class
+                - generic [ref=e340]: Unde...
+                - generic [ref=e343]: U...
+                - generic [ref=e346]: Unu...
+                - generic [ref=e349]: D...
+                - generic [ref=e352]: C...
+                - generic [ref=e355]: Ref...
+          - generic [ref=e356]:
+            - 'button "Files and folders: All" [ref=e362] [cursor=pointer]':
+              - text: "Files and folders: All"
+              - generic [ref=e363]:
+                - img
+            - generic [ref=e364]:
+              - generic [ref=e365]:
+                - 'button "Severity: All" [ref=e368] [cursor=pointer]':
+                  - generic [ref=e369]:
+                    - generic [ref=e370]: "Severity:"
+                    - generic [ref=e371]: All
+                    - generic [ref=e373]:
+                      - img
+                - 'button "Category: All" [ref=e376] [cursor=pointer]':
+                  - generic [ref=e377]:
+                    - generic [ref=e378]: "Category:"
+                    - generic [ref=e379]: All
+                    - generic [ref=e381]:
+                      - img
+                - 'button "Type: All" [ref=e384] [cursor=pointer]':
+                  - generic [ref=e385]:
+                    - generic [ref=e386]: "Type:"
+                    - generic [ref=e387]: All
+                    - generic [ref=e389]:
+                      - img
+              - button "Tags" [ref=e393] [cursor=pointer]:
+                - generic [ref=e394]:
+                  - generic [ref=e395]: Tags
+                  - generic [ref=e397]:
+                    - img
+        - article [ref=e99]:
+          - generic [ref=e101]:
+            - generic [ref=e398]:
+              - button "Problems107" [ref=e399] [cursor=pointer]
+              - button "Files32" [ref=e400] [cursor=pointer]
+            - generic [ref=e402]:
+              - generic:
+                - img
+              - textbox "search by issues" [ref=e403]:
+                - /placeholder: Search
+            - tooltip "File" [ref=e405]:
+              - 'button "Group by: File" [ref=e406] [cursor=pointer]':
+                - generic [ref=e407]:
+                  - generic [ref=e408]: "Group by:"
+                  - generic [ref=e409]: File
+                  - generic [ref=e411]:
+                    - img
+            - button "Move selected to baseline" [disabled] [ref=e414]
+          - generic [ref=e104]:
+            - generic [ref=e106]:
+              - generic [ref=e108]:
+                - generic [ref=e109]:
+                  - checkbox "Select all" [ref=e415] [cursor=pointer]
+                  - generic [ref=e110]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - text: Problems
+                - combobox "open sort selector" [ref=e112] [cursor=pointer]:
+                  - generic [ref=e115]:
+                    - img
+              - generic [ref=e117]: Category
+              - generic [ref=e118]: Type
+            - article [ref=e416]:
+              - generic "budget-summary.mjs" [ref=e2073]
+              - generic [ref=e2074]:
+                - generic [ref=e2076]:
+                  - checkbox "select issue" [ref=e2077] [cursor=pointer]
+                  - generic [ref=e2078]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2081] [cursor=pointer]:
+                  - textbox "High Unused parameter currentBudget Unused symbols Unused local symbol" [ref=e2082]
+                  - generic [ref=e2083]:
+                    - generic [ref=e2085]:
+                      - tooltip "High" [ref=e2086]:
+                        - generic [ref=e2087]:
+                          - img
+                      - paragraph [ref=e2089]: Unused parameter currentBudget
+                    - generic [ref=e2091]: Unused symbols
+                    - generic [ref=e2093]: Unused local symbol
+              - generic [ref=e2095]:
+                - generic [ref=e2097]:
+                  - checkbox "select issue" [ref=e2098] [cursor=pointer]
+                  - generic [ref=e2099]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2102] [cursor=pointer]:
+                  - textbox "High Unused parameter totalPassed Unused symbols Unused local symbol" [ref=e2103]
+                  - generic [ref=e2104]:
+                    - generic [ref=e2106]:
+                      - tooltip "High" [ref=e2107]:
+                        - generic [ref=e2108]:
+                          - img
+                      - paragraph [ref=e2110]: Unused parameter totalPassed
+                    - generic [ref=e2112]: Unused symbols
+                    - generic [ref=e2114]: Unused local symbol
+              - generic "extract-claims.mjs" [ref=e2117]
+              - generic [ref=e2118]:
+                - generic [ref=e2120]:
+                  - checkbox "select issue" [ref=e2121] [cursor=pointer]
+                  - generic [ref=e2122]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2125] [cursor=pointer]:
+                  - textbox "High Single character alternation in RegExp RegExp Single character alternation" [ref=e2126]
+                  - generic [ref=e2127]:
+                    - generic [ref=e2129]:
+                      - tooltip "High" [ref=e2130]:
+                        - generic [ref=e2131]:
+                          - img
+                      - paragraph [ref=e2133]: Single character alternation in RegExp
+                    - generic [ref=e2135]: RegExp
+                    - generic [ref=e2137]: Single character alternation
+              - generic [ref=e2139]:
+                - generic [ref=e2141]:
+                  - checkbox "select issue" [ref=e2142] [cursor=pointer]
+                  - generic [ref=e2143]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2146] [cursor=pointer]:
+                  - textbox "High Single character alternation in RegExp RegExp Single character alternation" [ref=e2147]
+                  - generic [ref=e2148]:
+                    - generic [ref=e2150]:
+                      - tooltip "High" [ref=e2151]:
+                        - generic [ref=e2152]:
+                          - img
+                      - paragraph [ref=e2154]: Single character alternation in RegExp
+                    - generic [ref=e2156]: RegExp
+                    - generic [ref=e2158]: Single character alternation
+              - generic "large-static-asset.mjs" [ref=e2161]
+              - generic [ref=e2162]:
+                - generic [ref=e2164]:
+                  - checkbox "select issue" [ref=e2165] [cursor=pointer]
+                  - generic [ref=e2166]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2169] [cursor=pointer]:
+                  - textbox "High Unused import specifier relative Imports and dependencies Unused import" [ref=e2170]
+                  - generic [ref=e2171]:
+                    - generic [ref=e2173]:
+                      - tooltip "High" [ref=e2174]:
+                        - generic [ref=e2175]:
+                          - img
+                      - paragraph [ref=e2177]: Unused import specifier relative
+                    - generic [ref=e2179]: Imports and dependencies
+                    - generic [ref=e2181]: Unused import
+              - generic "support-topics.mjs" [ref=e2184]
+              - generic [ref=e2185]:
+                - generic [ref=e2187]:
+                  - checkbox "select issue" [ref=e2188] [cursor=pointer]
+                  - generic [ref=e2189]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2192] [cursor=pointer]:
+                  - textbox "High 'throw' of exception caught locally Try statement issues Exception used for local control-flow" [ref=e2193]
+                  - generic [ref=e2194]:
+                    - generic [ref=e2196]:
+                      - tooltip "High" [ref=e2197]:
+                        - generic [ref=e2198]:
+                          - img
+                      - paragraph [ref=e2200]: "'throw' of exception caught locally"
+                    - generic [ref=e2202]: Try statement issues
+                    - generic [ref=e2204]: Exception used for local control-flow
+              - generic "collect-sub-agent-outputs.mjs" [ref=e2207]
+              - generic [ref=e2208]:
+                - generic [ref=e2210]:
+                  - checkbox "select issue" [ref=e2211] [cursor=pointer]
+                  - generic [ref=e2212]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2215] [cursor=pointer]:
+                  - textbox "High Variable initializer is redundant Unused symbols Unused assignment" [ref=e2216]
+                  - generic [ref=e2217]:
+                    - generic [ref=e2219]:
+                      - tooltip "High" [ref=e2220]:
+                        - generic [ref=e2221]:
+                          - img
+                      - paragraph [ref=e2223]: Variable initializer is redundant
+                    - generic [ref=e2225]: Unused symbols
+                    - generic [ref=e2227]: Unused assignment
+              - generic "deep-dive.mjs" [ref=e2230]
+              - generic [ref=e2231]:
+                - generic [ref=e2233]:
+                  - checkbox "select issue" [ref=e2234] [cursor=pointer]
+                  - generic [ref=e2235]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2238] [cursor=pointer]:
+                  - textbox "High Variable initializer is redundant Unused symbols Unused assignment" [ref=e2239]
+                  - generic [ref=e2240]:
+                    - generic [ref=e2242]:
+                      - tooltip "High" [ref=e2243]:
+                        - generic [ref=e2244]:
+                          - img
+                      - paragraph [ref=e2246]: Variable initializer is redundant
+                    - generic [ref=e2248]: Unused symbols
+                    - generic [ref=e2250]: Unused assignment
+              - generic ".claude/skills/vercel-optimize/lib/render-report.mjs" [ref=e2253]
+              - generic [ref=e2254]:
+                - generic [ref=e2256]:
+                  - checkbox "select issue" [ref=e2257] [cursor=pointer]
+                  - generic [ref=e2258]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2261] [cursor=pointer]:
+                  - textbox "High Unused constant disqualified Unused symbols Unused local symbol" [ref=e2262]
+                  - generic [ref=e2263]:
+                    - generic [ref=e2265]:
+                      - tooltip "High" [ref=e2266]:
+                        - generic [ref=e2267]:
+                          - img
+                      - paragraph [ref=e2269]: Unused constant disqualified
+                    - generic [ref=e2271]: Unused symbols
+                    - generic [ref=e2273]: Unused local symbol
+              - generic "impact-label.mjs" [ref=e2276]
+              - generic [ref=e2277]:
+                - generic [ref=e2279]:
+                  - checkbox "select issue" [ref=e2280] [cursor=pointer]
+                  - generic [ref=e2281]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2284] [cursor=pointer]:
+                  - textbox "High Unused parameter signals Unused symbols Unused local symbol" [ref=e2285]
+                  - generic [ref=e2286]:
+                    - generic [ref=e2288]:
+                      - tooltip "High" [ref=e2289]:
+                        - generic [ref=e2290]:
+                          - img
+                      - paragraph [ref=e2292]: Unused parameter signals
+                    - generic [ref=e2294]: Unused symbols
+                    - generic [ref=e2296]: Unused local symbol
+              - generic ".claude/skills/vercel-optimize/scripts/render-report.mjs" [ref=e2299]
+              - generic [ref=e2300]:
+                - generic [ref=e2302]:
+                  - checkbox "select issue" [ref=e2303] [cursor=pointer]
+                  - generic [ref=e2304]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2307] [cursor=pointer]:
+                  - textbox "High Unused parameter i Unused symbols Unused local symbol" [ref=e2308]
+                  - generic [ref=e2309]:
+                    - generic [ref=e2311]:
+                      - tooltip "High" [ref=e2312]:
+                        - generic [ref=e2313]:
+                          - img
+                      - paragraph [ref=e2315]: Unused parameter i
+                    - generic [ref=e2317]: Unused symbols
+                    - generic [ref=e2319]: Unused local symbol
+              - generic "build-agents.ts" [ref=e2322]
+              - generic [ref=e2323]:
+                - generic [ref=e2325]:
+                  - checkbox "select issue" [ref=e2326] [cursor=pointer]
+                  - generic [ref=e2327]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2330] [cursor=pointer]:
+                  - textbox "High Unused constant category Unused symbols Unused local symbol" [ref=e2331]
+                  - generic [ref=e2332]:
+                    - generic [ref=e2334]:
+                      - tooltip "High" [ref=e2335]:
+                        - generic [ref=e2336]:
+                          - img
+                      - paragraph [ref=e2338]: Unused constant category
+                    - generic [ref=e2340]: Unused symbols
+                    - generic [ref=e2342]: Unused local symbol
+              - generic "prisma-include-tree.mjs" [ref=e2345]
+              - generic [ref=e2346]:
+                - generic [ref=e2348]:
+                  - checkbox "select issue" [ref=e2349] [cursor=pointer]
+                  - generic [ref=e2350]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2353] [cursor=pointer]:
+                  - textbox "High while statement doesn't loop Control flow issues Loop statement that doesn't loop" [ref=e2354]
+                  - generic [ref=e2355]:
+                    - generic [ref=e2357]:
+                      - tooltip "High" [ref=e2358]:
+                        - generic [ref=e2359]:
+                          - img
+                      - paragraph [ref=e2361]:
+                        - code [ref=e2363]: while
+                        - text: statement doesn't loop
+                    - generic [ref=e2365]: Control flow issues
+                    - generic [ref=e2367]: Loop statement that doesn't loop
+              - generic "investigation-brief.mjs" [ref=e2370]
+              - generic [ref=e2371]:
+                - generic [ref=e2373]:
+                  - checkbox "select issue" [ref=e2374] [cursor=pointer]
+                  - generic [ref=e2375]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2378] [cursor=pointer]:
+                  - textbox "High Duplicate character '.' inside character class RegExp Duplicate character in character class" [ref=e2379]
+                  - generic [ref=e2380]:
+                    - generic [ref=e2382]:
+                      - tooltip "High" [ref=e2383]:
+                        - generic [ref=e2384]:
+                          - img
+                      - paragraph [ref=e2386]: Duplicate character '.' inside character class
+                    - generic [ref=e2388]: RegExp
+                    - generic [ref=e2390]: Duplicate character in character class
+              - generic "verify-claim.mjs" [ref=e2393]
+              - generic [ref=e2394]:
+                - generic [ref=e2396]:
+                  - checkbox "select issue" [ref=e2397] [cursor=pointer]
+                  - generic [ref=e2398]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2401] [cursor=pointer]:
+                  - textbox "High Single character alternation in RegExp RegExp Single character alternation" [ref=e2402]
+                  - generic [ref=e2403]:
+                    - generic [ref=e2405]:
+                      - tooltip "High" [ref=e2406]:
+                        - generic [ref=e2407]:
+                          - img
+                      - paragraph [ref=e2409]: Single character alternation in RegExp
+                    - generic [ref=e2411]: RegExp
+                    - generic [ref=e2413]: Single character alternation
+              - generic "display-labels.mjs" [ref=e2416]
+              - generic [ref=e2417]:
+                - generic [ref=e2419]:
+                  - checkbox "select issue" [ref=e2420] [cursor=pointer]
+                  - generic [ref=e2421]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2424] [cursor=pointer]:
+                  - textbox "High Single character alternation in RegExp RegExp Single character alternation" [ref=e2425]
+                  - generic [ref=e2426]:
+                    - generic [ref=e2428]:
+                      - tooltip "High" [ref=e2429]:
+                        - generic [ref=e2430]:
+                          - img
+                      - paragraph [ref=e2432]: Single character alternation in RegExp
+                    - generic [ref=e2434]: RegExp
+                    - generic [ref=e2436]: Single character alternation
+              - generic "impact-magnitude.mjs" [ref=e2439]
+              - generic [ref=e2440]:
+                - generic [ref=e2442]:
+                  - checkbox "select issue" [ref=e2443] [cursor=pointer]
+                  - generic [ref=e2444]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2447] [cursor=pointer]:
+                  - textbox "High Unnecessary non-capturing group (?:[kKmMbB]) RegExp Unnecessary non-capturing group" [ref=e2448]
+                  - generic [ref=e2449]:
+                    - generic [ref=e2451]:
+                      - tooltip "High" [ref=e2452]:
+                        - generic [ref=e2453]:
+                          - img
+                      - paragraph [ref=e2455]:
+                        - text: Unnecessary non-capturing group
+                        - code [ref=e2457]: (?:[kKmMbB])
+                    - generic [ref=e2459]: RegExp
+                    - generic [ref=e2461]: Unnecessary non-capturing group
+              - generic "route-normalize.mjs" [ref=e2464]
+              - generic [ref=e2465]:
+                - generic [ref=e2467]:
+                  - checkbox "select issue" [ref=e2468] [cursor=pointer]
+                  - generic [ref=e2469]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2472] [cursor=pointer]:
+                  - 'textbox "High Unnecessary non-capturing group (?:^.{200,}$) RegExp Unnecessary non-capturing group" [ref=e2473]'
+                  - generic [ref=e2474]:
+                    - generic [ref=e2476]:
+                      - tooltip "High" [ref=e2477]:
+                        - generic [ref=e2478]:
+                          - img
+                      - paragraph [ref=e2480]:
+                        - text: Unnecessary non-capturing group
+                        - code [ref=e2482]: "(?:^.{200,}$)"
+                    - generic [ref=e2484]: RegExp
+                    - generic [ref=e2486]: Unnecessary non-capturing group
+              - generic "scan-codebase.mjs" [ref=e2489]
+              - generic [ref=e2490]:
+                - generic [ref=e2492]:
+                  - checkbox "select issue" [ref=e2493] [cursor=pointer]
+                  - generic [ref=e2494]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2497] [cursor=pointer]:
+                  - textbox "High continue is unnecessary as the last statement in a loop Control flow issues Unnecessary 'continue' statement" [ref=e2498]
+                  - generic [ref=e2499]:
+                    - generic [ref=e2501]:
+                      - tooltip "High" [ref=e2502]:
+                        - generic [ref=e2503]:
+                          - img
+                      - paragraph [ref=e2505]:
+                        - code [ref=e2507]: continue
+                        - text: is unnecessary as the last statement in a loop
+                    - generic [ref=e2509]: Control flow issues
+                    - generic [ref=e2511]: Unnecessary 'continue' statement
+              - generic "src/frontend/src/app/(auth)/register/page.tsx" [ref=e2514]
+              - generic [ref=e2515]:
+                - generic [ref=e2517]:
+                  - checkbox "select issue" [ref=e2518] [cursor=pointer]
+                  - generic [ref=e2519]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2522] [cursor=pointer]:
+                  - textbox "Moderate Deprecated symbol used, consult docs for better alternative General Deprecated symbol used" [ref=e2523]
+                  - generic [ref=e2524]:
+                    - generic [ref=e2526]:
+                      - tooltip "Moderate" [ref=e2527]:
+                        - generic [ref=e2528]:
+                          - img
+                      - paragraph [ref=e2530]: Deprecated symbol used, consult docs for better alternative
+                    - generic [ref=e2532]: General
+                    - generic [ref=e2534]: Deprecated symbol used
+              - generic [ref=e2536]:
+                - generic [ref=e2538]:
+                  - checkbox "select issue" [ref=e2539] [cursor=pointer]
+                  - generic [ref=e2540]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2543] [cursor=pointer]:
+                  - textbox "Moderate Deprecated symbol used, consult docs for better alternative General Deprecated symbol used" [ref=e2544]
+                  - generic [ref=e2545]:
+                    - generic [ref=e2547]:
+                      - tooltip "Moderate" [ref=e2548]:
+                        - generic [ref=e2549]:
+                          - img
+                      - paragraph [ref=e2551]: Deprecated symbol used, consult docs for better alternative
+                    - generic [ref=e2553]: General
+                    - generic [ref=e2555]: Deprecated symbol used
+              - generic [ref=e2557]:
+                - generic [ref=e2559]:
+                  - checkbox "select issue" [ref=e2560] [cursor=pointer]
+                  - generic [ref=e2561]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2564] [cursor=pointer]:
+                  - textbox "Moderate Referenced UMD global variable TypeScript Referenced UMD global variable" [ref=e2565]
+                  - generic [ref=e2566]:
+                    - generic [ref=e2568]:
+                      - tooltip "Moderate" [ref=e2569]:
+                        - generic [ref=e2570]:
+                          - img
+                      - paragraph [ref=e2572]: Referenced UMD global variable
+                    - generic [ref=e2574]: TypeScript
+                    - generic [ref=e2576]: Referenced UMD global variable
+              - generic [ref=e2578]:
+                - generic [ref=e2580]:
+                  - checkbox "select issue" [ref=e2581] [cursor=pointer]
+                  - generic [ref=e2582]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2585] [cursor=pointer]:
+                  - textbox "Moderate Referenced UMD global variable TypeScript Referenced UMD global variable" [ref=e2586]
+                  - generic [ref=e2587]:
+                    - generic [ref=e2589]:
+                      - tooltip "Moderate" [ref=e2590]:
+                        - generic [ref=e2591]:
+                          - img
+                      - paragraph [ref=e2593]: Referenced UMD global variable
+                    - generic [ref=e2595]: TypeScript
+                    - generic [ref=e2597]: Referenced UMD global variable
+              - generic "src/frontend/src/app/(auth)/login/page.tsx" [ref=e2600]
+              - generic [ref=e2601]:
+                - generic [ref=e2603]:
+                  - checkbox "select issue" [ref=e2604] [cursor=pointer]
+                  - generic [ref=e2605]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2608] [cursor=pointer]:
+                  - textbox "Moderate Deprecated symbol used, consult docs for better alternative General Deprecated symbol used" [ref=e2609]
+                  - generic [ref=e2610]:
+                    - generic [ref=e2612]:
+                      - tooltip "Moderate" [ref=e2613]:
+                        - generic [ref=e2614]:
+                          - img
+                      - paragraph [ref=e2616]: Deprecated symbol used, consult docs for better alternative
+                    - generic [ref=e2618]: General
+                    - generic [ref=e2620]: Deprecated symbol used
+              - generic [ref=e2622]:
+                - generic [ref=e2624]:
+                  - checkbox "select issue" [ref=e2625] [cursor=pointer]
+                  - generic [ref=e2626]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2629] [cursor=pointer]:
+                  - textbox "Moderate Deprecated symbol used, consult docs for better alternative General Deprecated symbol used" [ref=e2630]
+                  - generic [ref=e2631]:
+                    - generic [ref=e2633]:
+                      - tooltip "Moderate" [ref=e2634]:
+                        - generic [ref=e2635]:
+                          - img
+                      - paragraph [ref=e2637]: Deprecated symbol used, consult docs for better alternative
+                    - generic [ref=e2639]: General
+                    - generic [ref=e2641]: Deprecated symbol used
+              - generic [ref=e949]:
+                - generic [ref=e950]:
+                  - button "Previous" [ref=e1538] [cursor=pointer]:
+                    - generic [ref=e1539]:
+                      - img
+                    - text: Previous
+                  - button "Next page" [ref=e953] [cursor=pointer]:
+                    - text: Next page
+                    - generic [ref=e954]:
+                      - img
+                - generic [ref=e955]:
+                  - generic [ref=e957]:
+                    - button "1" [ref=e958] [cursor=pointer]
+                    - button "2" [ref=e959] [cursor=pointer]
+                    - button "3" [ref=e960] [cursor=pointer]
+                    - button "4" [active] [ref=e961] [cursor=pointer]
+                    - button "5" [ref=e962] [cursor=pointer]
+                  - combobox "25 per page" [ref=e965] [cursor=pointer]:
+                    - text: 25 per page
+                    - generic [ref=e966]:
+                      - img
+  - contentinfo [ref=e238]:
+    - generic [ref=e239]: © 2020–2026 Qodana
+    - list [ref=e241]:
+      - listitem [ref=e242]:
+        - link "Terms Of Use" [ref=e243] [cursor=pointer]:
+          - /url: https://www.jetbrains.com/legal/agreements/user.html

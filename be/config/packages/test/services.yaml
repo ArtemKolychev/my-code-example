@@ -1,3 +1,0 @@
-services:
-    App\Service\ArticleService:
-        public: true

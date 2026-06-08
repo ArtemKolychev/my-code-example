@@ -1,0 +1,24 @@
+{
+  "name": "@core/monorepo",
+  "description": "pnpm workspaces root — aggregates lint/build/test across gateway, frontend and shared-types packages",
+  "private": true,
+  "scripts": {
+    "lint": "pnpm -r run lint",
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test"
+  },
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=9"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.0.0",
+    "@eslint/js": "^9.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@nestjs/core", "sharp", "unrs-resolver"]
+  }
+}

@@ -1,0 +1,39 @@
+version: "1.0"
+
+linter: jetbrains/qodana-php:2026.1
+
+php:
+  version: "8.4"
+
+# qodana.recommended включает все инспекции, кроме опциональных — лучше qodana.starter
+profile:
+  name: qodana.recommended
+
+exclude:
+  # Сторонний код
+  - name: All
+    paths:
+      - src/backend/vendor
+      - src/backend/bootstrap/cache
+      - src/backend/storage
+      # Кастомные PHPStan-правила — проверяются отдельно через phpstan
+      - src/backend/tests
+      # TypeScript-слои не анализируются qodana-php
+      - src/frontend
+      - src/gateway
+      - src/shared-types
+      - node_modules
+      # Внутренние скрипты Claude Code
+      - .claude
+
+  # Подавляем false-positive на авто-генерируемых IDE helpers от Laravel
+  - name: PhpUndefinedMagicMethodInspection
+    paths:
+      - src/backend/app
+
+# Quality gate: нулевая толерантность к критическим проблемам
+failureConditions:
+  severityThresholds:
+    critical: 0
+    high: 5
+    any: 30

@@ -1,0 +1,328 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - img "Qodana product logo" [ref=e6]
+    - generic [ref=e12]:
+      - button "help menu" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15]:
+          - img
+      - switch "toggle dark theme" [checked] [ref=e16]:
+        - generic [ref=e19] [cursor=pointer]:
+          - generic [ref=e20]:
+            - img
+          - generic [ref=e21]:
+            - img
+  - main [ref=e22]:
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e27]: Get more features with Qodana Cloud ☁️ ✨
+        - generic [ref=e29]:
+          - text: "Currently you’re in the local Qodana report. Log in to Qodana Cloud, and you will be able to:"
+          - list [ref=e30]:
+            - listitem [ref=e31]: 📈 Monitor progress in your project and overview Qodana reports per each branch
+            - listitem [ref=e32]: 🚧 Set quality gates for managing your product quality
+            - listitem [ref=e33]: 👯 Use team dashboards to better collaborate with your teammates.
+        - button "Collapse" [ref=e34] [cursor=pointer]:
+          - generic [ref=e35]:
+            - img
+      - link "Log in to Qodana Cloud" [ref=e37] [cursor=pointer]:
+        - /url: https://qodana.cloud
+    - article [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - button "Actual problems 107" [ref=e244] [cursor=pointer]:
+              - generic [ref=e44]:
+                - heading "Actual problems" [level=2] [ref=e45]
+                - generic [ref=e248]: "107"
+            - button "Baseline 0 problems" [ref=e249] [cursor=pointer]:
+              - generic [ref=e50]:
+                - heading "Baseline" [level=2] [ref=e51]
+                - generic [ref=e250]:
+                  - generic [ref=e253]: "0"
+                  - generic [ref=e254]: problems
+            - button "Configuration 245 inspections" [ref=e255] [cursor=pointer]:
+              - generic [ref=e56]:
+                - heading "Configuration" [level=2] [ref=e57]
+                - generic [ref=e256]:
+                  - generic [ref=e259]: "245"
+                  - generic [ref=e260]: inspections
+            - button "License audit Not available" [ref=e261] [cursor=pointer]:
+              - generic [ref=e62]:
+                - heading "License audit" [level=2] [ref=e63]
+                - heading "Not available" [level=3] [ref=e262]
+          - generic [ref=e264]:
+            - generic [ref=e265]: "Code coverage:"
+            - generic [ref=e266]:
+              - text: Not set
+              - generic [ref=e268]:
+                - img
+        - generic [ref=e270]:
+          - generic [ref=e271]:
+            - generic [ref=e272]:
+              - generic [ref=e273]: 🔮 Suggested inspections
+              - button "Close" [ref=e274] [cursor=pointer]:
+                - generic [ref=e275]:
+                  - img
+            - generic [ref=e276]: We’ve discovered even more problems in your codebase. Explore Suggested Inspections and enable them if you find these problems important.
+          - button "Show problems" [ref=e278] [cursor=pointer]
+        - generic [ref=e74]:
+          - generic [ref=e279]:
+            - generic:
+              - generic:
+                - generic [ref=e280]: "107"
+                - generic "problems" [ref=e282]
+            - img [ref=e284]:
+              - generic [ref=e286]:
+                - generic [ref=e289]: High
+                - generic [ref=e292]: Moderate
+                - generic [ref=e295]: C...
+                - generic [ref=e300]: RegExp
+                - generic [ref=e303]: T...
+                - generic [ref=e306]: Undefined symbols
+                - generic [ref=e309]: Unused...
+                - generic [ref=e312]: G...
+                - generic [ref=e315]: P...
+                - generic [ref=e318]: Typ...
+                - generic [ref=e329]: S...
+                - generic [ref=e334]: E...
+                - generic [ref=e337]: Undefined class
+                - generic [ref=e340]: Unde...
+                - generic [ref=e343]: U...
+                - generic [ref=e346]: Unu...
+                - generic [ref=e349]: D...
+                - generic [ref=e352]: C...
+                - generic [ref=e355]: Ref...
+          - generic [ref=e356]:
+            - 'button "Files and folders: All" [ref=e362] [cursor=pointer]':
+              - text: "Files and folders: All"
+              - generic [ref=e363]:
+                - img
+            - generic [ref=e364]:
+              - generic [ref=e365]:
+                - 'button "Severity: All" [ref=e368] [cursor=pointer]':
+                  - generic [ref=e369]:
+                    - generic [ref=e370]: "Severity:"
+                    - generic [ref=e371]: All
+                    - generic [ref=e373]:
+                      - img
+                - 'button "Category: All" [ref=e376] [cursor=pointer]':
+                  - generic [ref=e377]:
+                    - generic [ref=e378]: "Category:"
+                    - generic [ref=e379]: All
+                    - generic [ref=e381]:
+                      - img
+                - 'button "Type: All" [ref=e384] [cursor=pointer]':
+                  - generic [ref=e385]:
+                    - generic [ref=e386]: "Type:"
+                    - generic [ref=e387]: All
+                    - generic [ref=e389]:
+                      - img
+              - button "Tags" [ref=e393] [cursor=pointer]:
+                - generic [ref=e394]:
+                  - generic [ref=e395]: Tags
+                  - generic [ref=e397]:
+                    - img
+        - article [ref=e99]:
+          - generic [ref=e101]:
+            - generic [ref=e398]:
+              - button "Problems107" [ref=e399] [cursor=pointer]
+              - button "Files32" [ref=e400] [cursor=pointer]
+            - generic [ref=e402]:
+              - generic:
+                - img
+              - textbox "search by issues" [ref=e403]:
+                - /placeholder: Search
+            - tooltip "File" [ref=e405]:
+              - 'button "Group by: File" [ref=e406] [cursor=pointer]':
+                - generic [ref=e407]:
+                  - generic [ref=e408]: "Group by:"
+                  - generic [ref=e409]: File
+                  - generic [ref=e411]:
+                    - img
+            - button "Move selected to baseline" [disabled] [ref=e414]
+          - generic [ref=e104]:
+            - generic [ref=e106]:
+              - generic [ref=e108]:
+                - generic [ref=e109]:
+                  - checkbox "Select all" [ref=e415] [cursor=pointer]
+                  - generic [ref=e110]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - text: Problems
+                - combobox "open sort selector" [ref=e112] [cursor=pointer]:
+                  - generic [ref=e115]:
+                    - img
+              - generic [ref=e117]: Category
+              - generic [ref=e118]: Type
+            - article [ref=e416]:
+              - generic "src/frontend/src/app/(auth)/login/page.tsx" [ref=e2600]
+              - generic [ref=e2643]:
+                - generic [ref=e2645]:
+                  - checkbox "select issue" [ref=e2646] [cursor=pointer]
+                  - generic [ref=e2647]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2650] [cursor=pointer]:
+                  - textbox "Moderate Referenced UMD global variable TypeScript Referenced UMD global variable" [ref=e2651]
+                  - generic [ref=e2652]:
+                    - generic [ref=e2654]:
+                      - tooltip "Moderate" [ref=e2655]:
+                        - generic [ref=e2656]:
+                          - img
+                      - paragraph [ref=e2658]: Referenced UMD global variable
+                    - generic [ref=e2660]: TypeScript
+                    - generic [ref=e2662]: Referenced UMD global variable
+              - generic "collect-signals.mjs" [ref=e2665]
+              - generic [ref=e2666]:
+                - generic [ref=e2668]:
+                  - checkbox "select issue" [ref=e2669] [cursor=pointer]
+                  - generic [ref=e2670]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2673] [cursor=pointer]:
+                  - textbox "Moderate Condition is always false since types 'boolean' and 'string' have no overlap Probable bugs Comparison of expressions having incompatible types" [ref=e2674]
+                  - generic [ref=e2675]:
+                    - generic [ref=e2677]:
+                      - tooltip "Moderate" [ref=e2678]:
+                        - generic [ref=e2679]:
+                          - img
+                      - paragraph [ref=e2681]: Condition is always false since types 'boolean' and 'string' have no overlap
+                    - generic [ref=e2683]: Probable bugs
+                    - generic [ref=e2685]: Comparison of expressions having incompatible types
+              - generic [ref=e2687]:
+                - generic [ref=e2689]:
+                  - checkbox "select issue" [ref=e2690] [cursor=pointer]
+                  - generic [ref=e2691]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2694] [cursor=pointer]:
+                  - textbox "Moderate Condition is always false since types 'boolean' and 'string' have no overlap Probable bugs Comparison of expressions having incompatible types" [ref=e2695]
+                  - generic [ref=e2696]:
+                    - generic [ref=e2698]:
+                      - tooltip "Moderate" [ref=e2699]:
+                        - generic [ref=e2700]:
+                          - img
+                      - paragraph [ref=e2702]: Condition is always false since types 'boolean' and 'string' have no overlap
+                    - generic [ref=e2704]: Probable bugs
+                    - generic [ref=e2705]:
+                      - generic [ref=e2706]: Comparison of expressions having incompatible types
+                      - generic [ref=e2708]:
+                        - img
+              - generic "layout.tsx" [ref=e2710]
+              - generic [ref=e2711]:
+                - generic [ref=e2713]:
+                  - checkbox "select issue" [ref=e2714] [cursor=pointer]
+                  - generic [ref=e2715]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2718] [cursor=pointer]:
+                  - textbox "Moderate Referenced UMD global variable TypeScript Referenced UMD global variable" [ref=e2719]
+                  - generic [ref=e2720]:
+                    - generic [ref=e2722]:
+                      - tooltip "Moderate" [ref=e2723]:
+                        - generic [ref=e2724]:
+                          - img
+                      - paragraph [ref=e2726]: Referenced UMD global variable
+                    - generic [ref=e2728]: TypeScript
+                    - generic [ref=e2730]: Referenced UMD global variable
+              - generic [ref=e2732]:
+                - generic [ref=e2734]:
+                  - checkbox "select issue" [ref=e2735] [cursor=pointer]
+                  - generic [ref=e2736]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2739] [cursor=pointer]:
+                  - textbox "Moderate Referenced UMD global variable TypeScript Referenced UMD global variable" [ref=e2740]
+                  - generic [ref=e2741]:
+                    - generic [ref=e2743]:
+                      - tooltip "Moderate" [ref=e2744]:
+                        - generic [ref=e2745]:
+                          - img
+                      - paragraph [ref=e2747]: Referenced UMD global variable
+                    - generic [ref=e2749]: TypeScript
+                    - generic [ref=e2751]: Referenced UMD global variable
+              - generic "throttle.mjs" [ref=e2754]
+              - generic [ref=e2755]:
+                - generic [ref=e2757]:
+                  - checkbox "select issue" [ref=e2758] [cursor=pointer]
+                  - generic [ref=e2759]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2762] [cursor=pointer]:
+                  - textbox "Moderate Condition is always false since types 'boolean' and 'string' have no overlap Probable bugs Comparison of expressions having incompatible types" [ref=e2763]
+                  - generic [ref=e2764]:
+                    - generic [ref=e2766]:
+                      - tooltip "Moderate" [ref=e2767]:
+                        - generic [ref=e2768]:
+                          - img
+                      - paragraph [ref=e2770]: Condition is always false since types 'boolean' and 'string' have no overlap
+                    - generic [ref=e2772]: Probable bugs
+                    - generic [ref=e2774]: Comparison of expressions having incompatible types
+              - generic "src/frontend/src/app/page.tsx" [ref=e2777]
+              - generic [ref=e2778]:
+                - generic [ref=e2780]:
+                  - checkbox "select issue" [ref=e2781] [cursor=pointer]
+                  - generic [ref=e2782]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2785] [cursor=pointer]:
+                  - textbox "Moderate Referenced UMD global variable TypeScript Referenced UMD global variable" [ref=e2786]
+                  - generic [ref=e2787]:
+                    - generic [ref=e2789]:
+                      - tooltip "Moderate" [ref=e2790]:
+                        - generic [ref=e2791]:
+                          - img
+                      - paragraph [ref=e2793]: Referenced UMD global variable
+                    - generic [ref=e2795]: TypeScript
+                    - generic [ref=e2797]: Referenced UMD global variable
+              - generic [ref=e949]:
+                - generic [ref=e950]:
+                  - button "Previous" [ref=e1538] [cursor=pointer]:
+                    - generic [ref=e1539]:
+                      - img
+                    - text: Previous
+                  - generic [ref=e2799]:
+                    - text: Next page
+                    - generic [ref=e2800]:
+                      - img
+                - generic [ref=e955]:
+                  - generic [ref=e957]:
+                    - button "1" [ref=e958] [cursor=pointer]
+                    - button "2" [ref=e959] [cursor=pointer]
+                    - button "3" [ref=e960] [cursor=pointer]
+                    - button "4" [ref=e961] [cursor=pointer]
+                    - button "5" [active] [ref=e962] [cursor=pointer]
+                  - combobox "25 per page" [ref=e965] [cursor=pointer]:
+                    - text: 25 per page
+                    - generic [ref=e966]:
+                      - img
+  - contentinfo [ref=e238]:
+    - generic [ref=e239]: © 2020–2026 Qodana
+    - list [ref=e241]:
+      - listitem [ref=e242]:
+        - link "Terms Of Use" [ref=e243] [cursor=pointer]:
+          - /url: https://www.jetbrains.com/legal/agreements/user.html

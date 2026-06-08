@@ -1,0 +1,206 @@
+{
+  "rabbit_version": "4.0",
+  "users": [
+    {"name": "guest", "password_hash": "CY9rzUYh03PK3k6DJie09g==", "tags": "administrator"}
+  ],
+  "vhosts": [{"name": "/"}],
+  "permissions": [
+    {"user": "guest", "vhost": "/", "configure": ".*", "write": ".*", "read": ".*"}
+  ],
+  "exchanges": [
+    {
+      "name": "core.commands",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "core.events",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "core.dlx",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "queues": [
+    {
+      "name": "commands.auth",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "core.dlx",
+        "x-dead-letter-routing-key": "dlq.auth",
+        "x-message-ttl": 86400000
+      }
+    },
+    {
+      "name": "commands.users",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "core.dlx",
+        "x-dead-letter-routing-key": "dlq.users",
+        "x-message-ttl": 86400000
+      }
+    },
+    {
+      "name": "commands.tenants",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "core.dlx",
+        "x-dead-letter-routing-key": "dlq.tenants",
+        "x-message-ttl": 86400000
+      }
+    },
+    {
+      "name": "events.auth",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "core.dlx",
+        "x-dead-letter-routing-key": "dlq.events.auth",
+        "x-message-ttl": 86400000
+      }
+    },
+    {
+      "name": "events.users",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "core.dlx",
+        "x-dead-letter-routing-key": "dlq.events.users",
+        "x-message-ttl": 86400000
+      }
+    },
+    {
+      "name": "events.tenants",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "core.dlx",
+        "x-dead-letter-routing-key": "dlq.events.tenants",
+        "x-message-ttl": 86400000
+      }
+    },
+    {
+      "name": "dlq.auth",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "dlq.users",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "dlq.tenants",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "dlq.events.auth",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "core.commands",
+      "vhost": "/",
+      "destination": "commands.auth",
+      "destination_type": "queue",
+      "routing_key": "core.commands.auth.#",
+      "arguments": {}
+    },
+    {
+      "source": "core.commands",
+      "vhost": "/",
+      "destination": "commands.users",
+      "destination_type": "queue",
+      "routing_key": "core.commands.users.#",
+      "arguments": {}
+    },
+    {
+      "source": "core.commands",
+      "vhost": "/",
+      "destination": "commands.tenants",
+      "destination_type": "queue",
+      "routing_key": "core.commands.tenants.#",
+      "arguments": {}
+    },
+    {
+      "source": "core.events",
+      "vhost": "/",
+      "destination": "events.auth",
+      "destination_type": "queue",
+      "routing_key": "core.events.auth.#",
+      "arguments": {}
+    },
+    {
+      "source": "core.events",
+      "vhost": "/",
+      "destination": "events.users",
+      "destination_type": "queue",
+      "routing_key": "core.events.users.#",
+      "arguments": {}
+    },
+    {
+      "source": "core.events",
+      "vhost": "/",
+      "destination": "events.tenants",
+      "destination_type": "queue",
+      "routing_key": "core.events.tenants.#",
+      "arguments": {}
+    },
+    {
+      "source": "core.dlx",
+      "vhost": "/",
+      "destination": "dlq.auth",
+      "destination_type": "queue",
+      "routing_key": "dlq.auth",
+      "arguments": {}
+    },
+    {
+      "source": "core.dlx",
+      "vhost": "/",
+      "destination": "dlq.users",
+      "destination_type": "queue",
+      "routing_key": "dlq.users",
+      "arguments": {}
+    },
+    {
+      "source": "core.dlx",
+      "vhost": "/",
+      "destination": "dlq.tenants",
+      "destination_type": "queue",
+      "routing_key": "dlq.tenants",
+      "arguments": {}
+    }
+  ]
+}

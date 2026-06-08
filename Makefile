@@ -1,146 +1,126 @@
-help: ## Outputs this help screen
-	@grep -E '(^[a-zA-Z0-9_-]+:.*?##.*$$)|(^##)' $(firstword $(MAKEFILE_LIST)) | awk 'BEGIN {FS = ":.*?## "}{printf "\033[32m%-30s\033[0m %s\n", $$1, $$2}' | sed -e 's/\[32m##/[33m/'
+.PHONY: dev dev-d stop build install install-php install-ts migrate test test-db lint lint-fix rector jwt-keys dev-observability logs ps shell-backend shell-gateway claude qodana qodana-report
 
-## —— General ──────────────────────────────────────────────────
-local-cert-generate: ## Generate self-signed SSL certificates for local development
-	mkdir -p ./docker/nginx/certs/${HOST}
-	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./docker/nginx/certs/${HOST}/privkey.pem -out ./docker/nginx/certs/${HOST}/fullchain.pem -subj "/C=RU/ST=State/L=City/O=Organization/OU=Department/CN=${HOST}"
+# ─── Stack ────────────────────────────────────────────────────────────────────
 
-HOST := $(shell grep '^HOST=' .env | cut -d= -f2 | tr -d "\"'")
-SERVER_HOST := $(shell grep '^SERVER_HOST=' .env | cut -d= -f2 | tr -d "\"'")
-PROXY_PORT := 8888
-PROD_PROJECT_NAME ?= bazarai
-PROD_COMPOSE = APP_ENV=prod docker compose -f docker-compose.yml --profile prod --project-name $(PROD_PROJECT_NAME)
+dev:
+	docker compose up
 
-plugin-w: ## Watch for changes in the media-loader-plugin and rebuild it
-	 docker compose exec node_be sh -c "cd src/plugins/media-loader-plugin; yarn watch"
+dev-d:
+	docker compose up -d
 
-## —— Docker ───────────────────────────────────────────────────
-dev: ## Start in dev mode (foreground, with build) + proxy tunnel if PROXY_URLS is set
-	@$(MAKE) -s _proxy-maybe-start
-	APP_ENV=dev docker compose up --build --remove-orphans $(ARGS)
+stop:
+	docker compose down
 
-dev-d: ## Start in dev mode (background, with build) + proxy tunnel if PROXY_URLS is set
-	@$(MAKE) -s _proxy-maybe-start
-	APP_ENV=dev docker compose up -d --build --remove-orphans $(ARGS)
+build:
+	docker compose build --no-cache
 
-prod: ## Start in prod mode (background, with build)
-	$(PROD_COMPOSE) up -d --build --remove-orphans $(ARGS)
+ps:
+	docker compose ps
 
-stop: ## Stop all containers
-	docker compose stop $(ARGS)
+logs:
+	docker compose logs -f $(SVC)
 
-restart: ## Restart containers (dev by default): make restart ARGS=clicker
-	docker compose stop $(ARGS)
-	docker compose up -d --remove-orphans $(ARGS)
+# ─── Keys ─────────────────────────────────────────────────────────────────────
 
-## —— Database ─────────────────────────────────────────────────
-migrate: ## Run database migrations
-	docker compose up -d db php
-	docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
+jwt-keys:
+	mkdir -p docker/keys
+	openssl genrsa -out docker/keys/private.pem 2048
+	openssl rsa -in docker/keys/private.pem -pubout -out docker/keys/public.pem
+	@echo "Keys generated in docker/keys/"
 
-prod-migrate: ## Run database migrations for the prod stack
-	$(PROD_COMPOSE) up -d db php
-	$(PROD_COMPOSE) exec -T php php bin/console doctrine:migrations:migrate --no-interaction
+# ─── Install ──────────────────────────────────────────────────────────────────
 
-## ── Linters (check only) ─────────────────────────────────────
-.PHONY: lint lint-be lint-clicker lint-frontend
-lint: lint-be lint-clicker lint-frontend
+install: install-php install-ts
 
-lint-be: ### Check PHP code style and analyze code with PHPStan
-	docker compose exec -T php vendor/bin/php-cs-fixer fix --dry-run --diff
-	docker compose exec -T php vendor/bin/phpstan analyse
+install-php:
+	docker compose exec backend_php composer install
 
-lint-clicker: ### Check TypeScript code style and analyze code with ESLint
-	docker compose exec -T clicker npx tsc -p tsconfig.build.json --noEmit
-	docker compose exec -T clicker npx eslint "{src,apps,libs,test}/**/*.ts"
+install-ts:
+	pnpm install
 
-lint-frontend: ### Check TypeScript code style with ESLint
-	docker compose exec -T frontend npm run lint
+# ─── Migrate ──────────────────────────────────────────────────────────────────
+# Usage:
+#   make migrate
+#   make migrate FRESH=1
+#   make migrate SEED=1
+#   make migrate FRESH=1 SEED=1
 
-## ── Linters (auto-fix) ───────────────────────────────────────
-.PHONY: lint-fix lint-be-fix lint-clicker-fix lint-frontend-fix
-lint-fix: lint-be-fix lint-clicker-fix lint-frontend-fix
+MIGRATE_ARGS = --force
+ifdef FRESH
+  MIGRATE_ARGS += --fresh
+endif
+ifdef SEED
+  MIGRATE_ARGS += --seed
+endif
 
-lint-be-fix: ### Fix PHP code style issues with PHP-CS-Fixer
-	docker compose exec -T php vendor/bin/php-cs-fixer fix
+migrate:
+	docker compose exec backend_php php artisan migrate $(MIGRATE_ARGS)
 
-lint-clicker-fix: ### Fix TypeScript code style issues with ESLint and Prettier
-	docker compose exec -T clicker npx eslint "{src,apps,libs,test}/**/*.ts" --fix
-	docker compose exec -T clicker npx prettier --write "src/**/*.ts" "test/**/*.ts"
+# ─── Tests ────────────────────────────────────────────────────────────────────
 
-lint-frontend-fix: ### Fix TypeScript code style issues with ESLint and Prettier
-	docker compose exec -T frontend npm run lint
-	docker compose exec -T frontend npx prettier --write "src/**/*.{ts,tsx}" "app/**/*.{ts,tsx}"
+test:
+	docker compose exec postgres psql -U core -c "DROP DATABASE IF EXISTS core_test;" || true
+	docker compose exec postgres psql -U core -c "CREATE DATABASE core_test WITH OWNER core;" || true
+	docker compose exec -e DB_DATABASE=core_test backend_php php artisan migrate:fresh --seed --force
+	docker compose exec backend_php ./vendor/bin/phpunit
+	pnpm -r run test
 
-## —— Proxy ────────────────────────────────────────────────────
-_proxy-maybe-start:
-	@PROXY_URLS=$$(grep '^PROXY_URLS=' .env | cut -d= -f2 | tr -d "\"'"); \
-	if [ -n "$$PROXY_URLS" ]; then \
-		if ! which microsocks > /dev/null 2>&1; then \
-			echo "[proxy] microsocks not found, skipping proxy. (Install: brew install microsocks / apt install microsocks)"; \
-		else \
-			pkill microsocks 2>/dev/null || true; \
-			microsocks -p $(PROXY_PORT) &>/dev/null & \
-			sleep 1; \
-			echo "[proxy] microsocks started on port $(PROXY_PORT)"; \
-			ssh -fN -R 0.0.0.0:$(PROXY_PORT):localhost:$(PROXY_PORT) root@$(SERVER_HOST) && \
-			echo "[proxy] SSH tunnel to $(SERVER_HOST):$(PROXY_PORT) established" || \
-			echo "[proxy] WARNING: SSH tunnel failed, continuing without proxy"; \
-		fi; \
-	fi
+# ─── Lint ─────────────────────────────────────────────────────────────────────
 
-proxy-tunnel: ## Start local SOCKS5 proxy + SSH reverse tunnel to server (requires: brew install microsocks)
-	@which microsocks > /dev/null 2>&1 || (echo "microsocks not found. Install: brew install microsocks" && exit 1)
-	@echo "Starting microsocks on port $(PROXY_PORT)..."
-	@pkill microsocks 2>/dev/null || true
-	@microsocks -p $(PROXY_PORT) &
-	@sleep 1
-	@echo "Opening reverse SSH tunnel to $(SERVER_HOST):$(PROXY_PORT)..."
-	@echo "Traffic from Docker will go through your local machine."
-	@echo "Press Ctrl+C to stop."
-	ssh -N -R 0.0.0.0:$(PROXY_PORT):localhost:$(PROXY_PORT) root@$(SERVER_HOST)
+lint:
+	docker compose exec backend_php ./vendor/bin/phpstan analyse --memory-limit=512M
+	docker compose exec backend_php ./vendor/bin/phpunit --testdox tests/Architecture
+	pnpm -r run lint
+	pnpm -r run typecheck
+	bash scripts/detectors/run.sh
 
+lint-fix:
+	docker compose exec backend_php ./vendor/bin/pint
+	pnpm -r run lint-fix
 
-tunnel-stop: ## Stop SSH port-forward tunnel
-	@pkill -f "ssh.*-L.*bazarai" 2>/dev/null && echo "Tunnel stopped" || echo "Tunnel was not running"
+rector:
+	docker compose exec backend_php php vendor/bin/rector process
 
-proxy-stop: ## Stop local SOCKS5 proxy + SSH tunnel
-	@pkill microsocks 2>/dev/null && echo "microsocks stopped" || echo "microsocks was not running"
-	@pkill -f "ssh.*$(PROXY_PORT):localhost:$(PROXY_PORT)" 2>/dev/null && echo "SSH tunnel stopped" || true
+rector-dry:
+	docker compose exec backend_php php vendor/bin/rector process --dry-run
 
-proxy-status: ## Show current proxy configuration
-	@echo "SERVER_HOST: $(SERVER_HOST)"
-	@echo "PROXY_PORT:  $(PROXY_PORT)"
-	@echo "PROXY_URLS:  $$(grep '^PROXY_URLS=' .env | cut -d= -f2)"
-	@pgrep -l microsocks 2>/dev/null && echo "microsocks: running" || echo "microsocks: stopped"
-	@pgrep -fa "ssh.*$(PROXY_PORT):localhost" 2>/dev/null && echo "SSH tunnel: running" || echo "SSH tunnel: stopped"
+# ─── Shells ───────────────────────────────────────────────────────────────────
+
+shell-backend:
+	docker compose exec backend_php sh
+
+shell-gateway:
+	docker compose exec gateway sh
+
+# ─── Observability ────────────────────────────────────────────────────────────
+
+dev-observability:
+	docker compose --profile observability up -d
+
+# ─── Qodana ───────────────────────────────────────────────────────────────────
+
+qodana:
+	@mkdir -p .qodana/results
+	docker run --rm \
+		-v $(PWD):/data/project \
+		-v $(PWD)/.qodana/results:/data/results \
+		jetbrains/qodana-php:2026.1 \
+		--fail-threshold 0 || exit 0
+
+qodana-report:
+	@mkdir -p .qodana/results
+	docker run --rm \
+		-v $(PWD):/data/project \
+		-v $(PWD)/.qodana/results:/data/results \
+		jetbrains/qodana-php:2026.1 \
+		--save-report
+	docker run --rm \
+		-p 8080:8080 \
+		-v $(PWD)/.qodana/results:/data/results \
+		jetbrains/qodana-php:2026.1 \
+		show --results-dir=/data/results
+
+# ─── Claude ───────────────────────────────────────────────────────────────────
 
 claude:
 	claude --dangerously-skip-permissions
-
-## —— Fixtures ─────────────────────────────────────────────────
-record-fixtures-start: ## Restart clicker with RECORD_FIXTURES=1 (then trigger actions normally via API)
-	RECORD_FIXTURES=1 docker compose up -d --no-deps --remove-orphans clicker
-	@echo "Clicker restarted in record mode. Fixtures saved to uploads/{platform}/{action}/fixtures/"
-
-record-fixtures-stop: ## Restart clicker without RECORD_FIXTURES (back to normal)
-	docker compose up -d --no-deps --remove-orphans clicker
-
-## —— Tests ────────────────────────────────────────────────────
-_ADAPTER := $(filter-out test test-be test-clicker test-clicker-unit,$(MAKECMDGOALS))
-
-.PHONY: test test-be test-clicker test-clicker-unit
-test: test-be test-clicker-unit test-clicker ## Run all tests (PHP unit + clicker Jest unit + clicker Playwright adapters)
-
-test-be: ## Run PHP unit tests
-	docker compose run --rm -T php php vendor/bin/phpunit tests/Unit/
-
-test-clicker-unit: ## Run clicker Jest unit tests (*.spec.ts)
-	docker compose run --rm -T clicker npx jest --no-coverage
-
-test-clicker: ## Run all clicker adapter tests or a specific one: make test-clicker bazos
-	docker compose run --rm -T clicker npx playwright test $(if $(_ADAPTER),src/adapters/$(_ADAPTER)/test.spec.ts,) --project=chromium-xvfb
-
-%:
-	@:

@@ -1,0 +1,22 @@
+{
+  "name": "@core/shared-types",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src",
+    "lint-fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.0.0"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}

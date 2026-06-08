@@ -1,0 +1,669 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - img "Qodana product logo" [ref=e6]
+    - generic [ref=e12]:
+      - button "help menu" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15]:
+          - img
+      - switch "toggle dark theme" [checked] [ref=e16]:
+        - generic [ref=e19] [cursor=pointer]:
+          - generic [ref=e20]:
+            - img
+          - generic [ref=e21]:
+            - img
+  - main [ref=e22]:
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e27]: Get more features with Qodana Cloud ☁️ ✨
+        - generic [ref=e29]:
+          - text: "Currently you’re in the local Qodana report. Log in to Qodana Cloud, and you will be able to:"
+          - list [ref=e30]:
+            - listitem [ref=e31]: 📈 Monitor progress in your project and overview Qodana reports per each branch
+            - listitem [ref=e32]: 🚧 Set quality gates for managing your product quality
+            - listitem [ref=e33]: 👯 Use team dashboards to better collaborate with your teammates.
+        - button "Collapse" [ref=e34] [cursor=pointer]:
+          - generic [ref=e35]:
+            - img
+      - link "Log in to Qodana Cloud" [ref=e37] [cursor=pointer]:
+        - /url: https://qodana.cloud
+    - article [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - button "Actual problems 107" [ref=e244] [cursor=pointer]:
+              - generic [ref=e44]:
+                - heading "Actual problems" [level=2] [ref=e45]
+                - generic [ref=e248]: "107"
+            - button "Baseline 0 problems" [ref=e249] [cursor=pointer]:
+              - generic [ref=e50]:
+                - heading "Baseline" [level=2] [ref=e51]
+                - generic [ref=e250]:
+                  - generic [ref=e253]: "0"
+                  - generic [ref=e254]: problems
+            - button "Configuration 245 inspections" [ref=e255] [cursor=pointer]:
+              - generic [ref=e56]:
+                - heading "Configuration" [level=2] [ref=e57]
+                - generic [ref=e256]:
+                  - generic [ref=e259]: "245"
+                  - generic [ref=e260]: inspections
+            - button "License audit Not available" [ref=e261] [cursor=pointer]:
+              - generic [ref=e62]:
+                - heading "License audit" [level=2] [ref=e63]
+                - heading "Not available" [level=3] [ref=e262]
+          - generic [ref=e264]:
+            - generic [ref=e265]: "Code coverage:"
+            - generic [ref=e266]:
+              - text: Not set
+              - generic [ref=e268]:
+                - img
+        - generic [ref=e270]:
+          - generic [ref=e271]:
+            - generic [ref=e272]:
+              - generic [ref=e273]: 🔮 Suggested inspections
+              - button "Close" [ref=e274] [cursor=pointer]:
+                - generic [ref=e275]:
+                  - img
+            - generic [ref=e276]: We’ve discovered even more problems in your codebase. Explore Suggested Inspections and enable them if you find these problems important.
+          - button "Show problems" [ref=e278] [cursor=pointer]
+        - generic [ref=e74]:
+          - generic [ref=e279]:
+            - generic:
+              - generic:
+                - generic [ref=e280]: "107"
+                - generic "problems" [ref=e282]
+            - img [ref=e284]:
+              - generic [ref=e286]:
+                - generic [ref=e289]: High
+                - generic [ref=e292]: Moderate
+                - generic [ref=e295]: C...
+                - generic [ref=e300]: RegExp
+                - generic [ref=e303]: T...
+                - generic [ref=e306]: Undefined symbols
+                - generic [ref=e309]: Unused...
+                - generic [ref=e312]: G...
+                - generic [ref=e315]: P...
+                - generic [ref=e318]: Typ...
+                - generic [ref=e329]: S...
+                - generic [ref=e334]: E...
+                - generic [ref=e337]: Undefined class
+                - generic [ref=e340]: Unde...
+                - generic [ref=e343]: U...
+                - generic [ref=e346]: Unu...
+                - generic [ref=e349]: D...
+                - generic [ref=e352]: C...
+                - generic [ref=e355]: Ref...
+          - generic [ref=e356]:
+            - 'button "Files and folders: All" [ref=e362] [cursor=pointer]':
+              - text: "Files and folders: All"
+              - generic [ref=e363]:
+                - img
+            - generic [ref=e364]:
+              - generic [ref=e365]:
+                - 'button "Severity: All" [ref=e368] [cursor=pointer]':
+                  - generic [ref=e369]:
+                    - generic [ref=e370]: "Severity:"
+                    - generic [ref=e371]: All
+                    - generic [ref=e373]:
+                      - img
+                - 'button "Category: All" [ref=e376] [cursor=pointer]':
+                  - generic [ref=e377]:
+                    - generic [ref=e378]: "Category:"
+                    - generic [ref=e379]: All
+                    - generic [ref=e381]:
+                      - img
+                - 'button "Type: All" [ref=e384] [cursor=pointer]':
+                  - generic [ref=e385]:
+                    - generic [ref=e386]: "Type:"
+                    - generic [ref=e387]: All
+                    - generic [ref=e389]:
+                      - img
+              - button "Tags" [ref=e393] [cursor=pointer]:
+                - generic [ref=e394]:
+                  - generic [ref=e395]: Tags
+                  - generic [ref=e397]:
+                    - img
+        - article [ref=e99]:
+          - generic [ref=e101]:
+            - generic [ref=e398]:
+              - button "Problems107" [ref=e399] [cursor=pointer]
+              - button "Files32" [ref=e400] [cursor=pointer]
+            - generic [ref=e402]:
+              - generic:
+                - img
+              - textbox "search by issues" [ref=e403]:
+                - /placeholder: Search
+            - tooltip "File" [ref=e405]:
+              - 'button "Group by: File" [ref=e406] [cursor=pointer]':
+                - generic [ref=e407]:
+                  - generic [ref=e408]: "Group by:"
+                  - generic [ref=e409]: File
+                  - generic [ref=e411]:
+                    - img
+            - button "Move selected to baseline" [disabled] [ref=e414]
+          - generic [ref=e104]:
+            - generic [ref=e106]:
+              - generic [ref=e108]:
+                - generic [ref=e109]:
+                  - checkbox "Select all" [ref=e415] [cursor=pointer]
+                  - generic [ref=e110]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - text: Problems
+                - combobox "open sort selector" [ref=e112] [cursor=pointer]:
+                  - generic [ref=e115]:
+                    - img
+              - generic [ref=e117]: Category
+              - generic [ref=e118]: Type
+            - article [ref=e416]:
+              - generic "NoMutableStaticPropertiesRule.php" [ref=e1474]
+              - generic [ref=e1540]:
+                - generic [ref=e1542]:
+                  - checkbox "select issue" [ref=e1543] [cursor=pointer]
+                  - generic [ref=e1544]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1547] [cursor=pointer]:
+                  - textbox "High Undefined class 'Rule' Undefined symbols Undefined class" [ref=e1548]
+                  - generic [ref=e1549]:
+                    - generic [ref=e1551]:
+                      - tooltip "High" [ref=e1552]:
+                        - generic [ref=e1553]:
+                          - img
+                      - paragraph [ref=e1555]: Undefined class 'Rule'
+                    - generic [ref=e1557]: Undefined symbols
+                    - generic [ref=e1559]: Undefined class
+              - generic [ref=e1561]:
+                - generic [ref=e1563]:
+                  - checkbox "select issue" [ref=e1564] [cursor=pointer]
+                  - generic [ref=e1565]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1568] [cursor=pointer]:
+                  - textbox "High Undefined class 'Rule' Undefined symbols Undefined class" [ref=e1569]
+                  - generic [ref=e1570]:
+                    - generic [ref=e1572]:
+                      - tooltip "High" [ref=e1573]:
+                        - generic [ref=e1574]:
+                          - img
+                      - paragraph [ref=e1576]: Undefined class 'Rule'
+                    - generic [ref=e1578]: Undefined symbols
+                    - generic [ref=e1580]: Undefined class
+              - generic [ref=e1582]:
+                - generic [ref=e1584]:
+                  - checkbox "select issue" [ref=e1585] [cursor=pointer]
+                  - generic [ref=e1586]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1589] [cursor=pointer]:
+                  - textbox "High Undefined class 'RuleErrorBuilder' Undefined symbols Undefined class" [ref=e1590]
+                  - generic [ref=e1591]:
+                    - generic [ref=e1593]:
+                      - tooltip "High" [ref=e1594]:
+                        - generic [ref=e1595]:
+                          - img
+                      - paragraph [ref=e1597]: Undefined class 'RuleErrorBuilder'
+                    - generic [ref=e1599]: Undefined symbols
+                    - generic [ref=e1601]: Undefined class
+              - generic [ref=e1603]:
+                - generic [ref=e1605]:
+                  - checkbox "select issue" [ref=e1606] [cursor=pointer]
+                  - generic [ref=e1607]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1610] [cursor=pointer]:
+                  - textbox "High Undefined class 'Scope' Undefined symbols Undefined class" [ref=e1611]
+                  - generic [ref=e1612]:
+                    - generic [ref=e1614]:
+                      - tooltip "High" [ref=e1615]:
+                        - generic [ref=e1616]:
+                          - img
+                      - paragraph [ref=e1618]: Undefined class 'Scope'
+                    - generic [ref=e1620]: Undefined symbols
+                    - generic [ref=e1622]: Undefined class
+              - generic [ref=e1624]:
+                - generic [ref=e1626]:
+                  - checkbox "select issue" [ref=e1627] [cursor=pointer]
+                  - generic [ref=e1628]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1631] [cursor=pointer]:
+                  - textbox "High Undefined namespace 'Analyser' Undefined symbols Undefined namespace" [ref=e1632]
+                  - generic [ref=e1633]:
+                    - generic [ref=e1635]:
+                      - tooltip "High" [ref=e1636]:
+                        - generic [ref=e1637]:
+                          - img
+                      - paragraph [ref=e1639]: Undefined namespace 'Analyser'
+                    - generic [ref=e1641]: Undefined symbols
+                    - generic [ref=e1642]:
+                      - generic [ref=e1643]: Undefined namespace
+                      - generic [ref=e1645]:
+                        - img
+              - generic "ApplicationDtosMustBeFinalReadonlyRule.php" [ref=e1647]
+              - generic [ref=e1648]:
+                - generic [ref=e1650]:
+                  - checkbox "select issue" [ref=e1651] [cursor=pointer]
+                  - generic [ref=e1652]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1655] [cursor=pointer]:
+                  - textbox "High Undefined class 'Rule' Undefined symbols Undefined class" [ref=e1656]
+                  - generic [ref=e1657]:
+                    - generic [ref=e1659]:
+                      - tooltip "High" [ref=e1660]:
+                        - generic [ref=e1661]:
+                          - img
+                      - paragraph [ref=e1663]: Undefined class 'Rule'
+                    - generic [ref=e1665]: Undefined symbols
+                    - generic [ref=e1667]: Undefined class
+              - generic [ref=e1669]:
+                - generic [ref=e1671]:
+                  - checkbox "select issue" [ref=e1672] [cursor=pointer]
+                  - generic [ref=e1673]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1676] [cursor=pointer]:
+                  - textbox "High Undefined class 'RuleErrorBuilder' Undefined symbols Undefined class" [ref=e1677]
+                  - generic [ref=e1678]:
+                    - generic [ref=e1680]:
+                      - tooltip "High" [ref=e1681]:
+                        - generic [ref=e1682]:
+                          - img
+                      - paragraph [ref=e1684]: Undefined class 'RuleErrorBuilder'
+                    - generic [ref=e1686]: Undefined symbols
+                    - generic [ref=e1688]: Undefined class
+              - generic [ref=e1690]:
+                - generic [ref=e1692]:
+                  - checkbox "select issue" [ref=e1693] [cursor=pointer]
+                  - generic [ref=e1694]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1697] [cursor=pointer]:
+                  - textbox "High Undefined class 'RuleErrorBuilder' Undefined symbols Undefined class" [ref=e1698]
+                  - generic [ref=e1699]:
+                    - generic [ref=e1701]:
+                      - tooltip "High" [ref=e1702]:
+                        - generic [ref=e1703]:
+                          - img
+                      - paragraph [ref=e1705]: Undefined class 'RuleErrorBuilder'
+                    - generic [ref=e1707]: Undefined symbols
+                    - generic [ref=e1709]: Undefined class
+              - generic [ref=e1711]:
+                - generic [ref=e1713]:
+                  - checkbox "select issue" [ref=e1714] [cursor=pointer]
+                  - generic [ref=e1715]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1718] [cursor=pointer]:
+                  - textbox "High Undefined class 'Rule' Undefined symbols Undefined class" [ref=e1719]
+                  - generic [ref=e1720]:
+                    - generic [ref=e1722]:
+                      - tooltip "High" [ref=e1723]:
+                        - generic [ref=e1724]:
+                          - img
+                      - paragraph [ref=e1726]: Undefined class 'Rule'
+                    - generic [ref=e1728]: Undefined symbols
+                    - generic [ref=e1730]: Undefined class
+              - generic [ref=e1732]:
+                - generic [ref=e1734]:
+                  - checkbox "select issue" [ref=e1735] [cursor=pointer]
+                  - generic [ref=e1736]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1739] [cursor=pointer]:
+                  - textbox "High Undefined class 'Rule' Undefined symbols Undefined class" [ref=e1740]
+                  - generic [ref=e1741]:
+                    - generic [ref=e1743]:
+                      - tooltip "High" [ref=e1744]:
+                        - generic [ref=e1745]:
+                          - img
+                      - paragraph [ref=e1747]: Undefined class 'Rule'
+                    - generic [ref=e1749]: Undefined symbols
+                    - generic [ref=e1751]: Undefined class
+              - generic [ref=e1753]:
+                - generic [ref=e1755]:
+                  - checkbox "select issue" [ref=e1756] [cursor=pointer]
+                  - generic [ref=e1757]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1760] [cursor=pointer]:
+                  - textbox "High Undefined class 'Scope' Undefined symbols Undefined class" [ref=e1761]
+                  - generic [ref=e1762]:
+                    - generic [ref=e1764]:
+                      - tooltip "High" [ref=e1765]:
+                        - generic [ref=e1766]:
+                          - img
+                      - paragraph [ref=e1768]: Undefined class 'Scope'
+                    - generic [ref=e1770]: Undefined symbols
+                    - generic [ref=e1772]: Undefined class
+              - generic [ref=e1774]:
+                - generic [ref=e1776]:
+                  - checkbox "select issue" [ref=e1777] [cursor=pointer]
+                  - generic [ref=e1778]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1781] [cursor=pointer]:
+                  - textbox "High Undefined class 'Scope' Undefined symbols Undefined class" [ref=e1782]
+                  - generic [ref=e1783]:
+                    - generic [ref=e1785]:
+                      - tooltip "High" [ref=e1786]:
+                        - generic [ref=e1787]:
+                          - img
+                      - paragraph [ref=e1789]: Undefined class 'Scope'
+                    - generic [ref=e1791]: Undefined symbols
+                    - generic [ref=e1793]: Undefined class
+              - generic [ref=e1795]:
+                - generic [ref=e1797]:
+                  - checkbox "select issue" [ref=e1798] [cursor=pointer]
+                  - generic [ref=e1799]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1802] [cursor=pointer]:
+                  - textbox "High Undefined namespace 'Analyser' Undefined symbols Undefined namespace" [ref=e1803]
+                  - generic [ref=e1804]:
+                    - generic [ref=e1806]:
+                      - tooltip "High" [ref=e1807]:
+                        - generic [ref=e1808]:
+                          - img
+                      - paragraph [ref=e1810]: Undefined namespace 'Analyser'
+                    - generic [ref=e1812]: Undefined symbols
+                    - generic [ref=e1814]: Undefined namespace
+              - generic "HandlersMustBeReadonlyRule.php" [ref=e1817]
+              - generic [ref=e1818]:
+                - generic [ref=e1820]:
+                  - checkbox "select issue" [ref=e1821] [cursor=pointer]
+                  - generic [ref=e1822]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1825] [cursor=pointer]:
+                  - textbox "High Undefined class 'Rule' Undefined symbols Undefined class" [ref=e1826]
+                  - generic [ref=e1827]:
+                    - generic [ref=e1829]:
+                      - tooltip "High" [ref=e1830]:
+                        - generic [ref=e1831]:
+                          - img
+                      - paragraph [ref=e1833]: Undefined class 'Rule'
+                    - generic [ref=e1835]: Undefined symbols
+                    - generic [ref=e1837]: Undefined class
+              - generic [ref=e1839]:
+                - generic [ref=e1841]:
+                  - checkbox "select issue" [ref=e1842] [cursor=pointer]
+                  - generic [ref=e1843]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1846] [cursor=pointer]:
+                  - textbox "High Undefined class 'Rule' Undefined symbols Undefined class" [ref=e1847]
+                  - generic [ref=e1848]:
+                    - generic [ref=e1850]:
+                      - tooltip "High" [ref=e1851]:
+                        - generic [ref=e1852]:
+                          - img
+                      - paragraph [ref=e1854]: Undefined class 'Rule'
+                    - generic [ref=e1856]: Undefined symbols
+                    - generic [ref=e1858]: Undefined class
+              - generic [ref=e1860]:
+                - generic [ref=e1862]:
+                  - checkbox "select issue" [ref=e1863] [cursor=pointer]
+                  - generic [ref=e1864]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1867] [cursor=pointer]:
+                  - textbox "High Undefined class 'Scope' Undefined symbols Undefined class" [ref=e1868]
+                  - generic [ref=e1869]:
+                    - generic [ref=e1871]:
+                      - tooltip "High" [ref=e1872]:
+                        - generic [ref=e1873]:
+                          - img
+                      - paragraph [ref=e1875]: Undefined class 'Scope'
+                    - generic [ref=e1877]: Undefined symbols
+                    - generic [ref=e1879]: Undefined class
+              - generic [ref=e1881]:
+                - generic [ref=e1883]:
+                  - checkbox "select issue" [ref=e1884] [cursor=pointer]
+                  - generic [ref=e1885]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1888] [cursor=pointer]:
+                  - textbox "High Undefined class 'RuleErrorBuilder' Undefined symbols Undefined class" [ref=e1889]
+                  - generic [ref=e1890]:
+                    - generic [ref=e1892]:
+                      - tooltip "High" [ref=e1893]:
+                        - generic [ref=e1894]:
+                          - img
+                      - paragraph [ref=e1896]: Undefined class 'RuleErrorBuilder'
+                    - generic [ref=e1898]: Undefined symbols
+                    - generic [ref=e1900]: Undefined class
+              - generic [ref=e1902]:
+                - generic [ref=e1904]:
+                  - checkbox "select issue" [ref=e1905] [cursor=pointer]
+                  - generic [ref=e1906]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1909] [cursor=pointer]:
+                  - textbox "High Undefined class 'Rule' Undefined symbols Undefined class" [ref=e1910]
+                  - generic [ref=e1911]:
+                    - generic [ref=e1913]:
+                      - tooltip "High" [ref=e1914]:
+                        - generic [ref=e1915]:
+                          - img
+                      - paragraph [ref=e1917]: Undefined class 'Rule'
+                    - generic [ref=e1919]: Undefined symbols
+                    - generic [ref=e1921]: Undefined class
+              - generic [ref=e1923]:
+                - generic [ref=e1925]:
+                  - checkbox "select issue" [ref=e1926] [cursor=pointer]
+                  - generic [ref=e1927]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1930] [cursor=pointer]:
+                  - textbox "High Undefined class 'RuleErrorBuilder' Undefined symbols Undefined class" [ref=e1931]
+                  - generic [ref=e1932]:
+                    - generic [ref=e1934]:
+                      - tooltip "High" [ref=e1935]:
+                        - generic [ref=e1936]:
+                          - img
+                      - paragraph [ref=e1938]: Undefined class 'RuleErrorBuilder'
+                    - generic [ref=e1940]: Undefined symbols
+                    - generic [ref=e1942]: Undefined class
+              - generic [ref=e1944]:
+                - generic [ref=e1946]:
+                  - checkbox "select issue" [ref=e1947] [cursor=pointer]
+                  - generic [ref=e1948]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1951] [cursor=pointer]:
+                  - textbox "High Undefined class 'Scope' Undefined symbols Undefined class" [ref=e1952]
+                  - generic [ref=e1953]:
+                    - generic [ref=e1955]:
+                      - tooltip "High" [ref=e1956]:
+                        - generic [ref=e1957]:
+                          - img
+                      - paragraph [ref=e1959]: Undefined class 'Scope'
+                    - generic [ref=e1961]: Undefined symbols
+                    - generic [ref=e1963]: Undefined class
+              - generic [ref=e1965]:
+                - generic [ref=e1967]:
+                  - checkbox "select issue" [ref=e1968] [cursor=pointer]
+                  - generic [ref=e1969]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1972] [cursor=pointer]:
+                  - textbox "High Undefined namespace 'Analyser' Undefined symbols Undefined namespace" [ref=e1973]
+                  - generic [ref=e1974]:
+                    - generic [ref=e1976]:
+                      - tooltip "High" [ref=e1977]:
+                        - generic [ref=e1978]:
+                          - img
+                      - paragraph [ref=e1980]: Undefined namespace 'Analyser'
+                    - generic [ref=e1982]: Undefined symbols
+                    - generic [ref=e1984]: Undefined namespace
+              - generic "vercel.mjs" [ref=e1987]
+              - generic [ref=e1988]:
+                - generic [ref=e1990]:
+                  - checkbox "select issue" [ref=e1991] [cursor=pointer]
+                  - generic [ref=e1992]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e1995] [cursor=pointer]:
+                  - textbox "High 'throw' of exception caught locally Try statement issues Exception used for local control-flow" [ref=e1996]
+                  - generic [ref=e1997]:
+                    - generic [ref=e1999]:
+                      - tooltip "High" [ref=e2000]:
+                        - generic [ref=e2001]:
+                          - img
+                      - paragraph [ref=e2003]: "'throw' of exception caught locally"
+                    - generic [ref=e2005]: Try statement issues
+                    - generic [ref=e2007]: Exception used for local control-flow
+              - generic [ref=e2009]:
+                - generic [ref=e2011]:
+                  - checkbox "select issue" [ref=e2012] [cursor=pointer]
+                  - generic [ref=e2013]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2016] [cursor=pointer]:
+                  - textbox "High 'throw' of exception caught locally Try statement issues Exception used for local control-flow" [ref=e2017]
+                  - generic [ref=e2018]:
+                    - generic [ref=e2020]:
+                      - tooltip "High" [ref=e2021]:
+                        - generic [ref=e2022]:
+                          - img
+                      - paragraph [ref=e2024]: "'throw' of exception caught locally"
+                    - generic [ref=e2026]: Try statement issues
+                    - generic [ref=e2028]: Exception used for local control-flow
+              - generic [ref=e2030]:
+                - generic [ref=e2032]:
+                  - checkbox "select issue" [ref=e2033] [cursor=pointer]
+                  - generic [ref=e2034]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2037] [cursor=pointer]:
+                  - textbox "High Variable initializer is redundant Unused symbols Unused assignment" [ref=e2038]
+                  - generic [ref=e2039]:
+                    - generic [ref=e2041]:
+                      - tooltip "High" [ref=e2042]:
+                        - generic [ref=e2043]:
+                          - img
+                      - paragraph [ref=e2045]: Variable initializer is redundant
+                    - generic [ref=e2047]: Unused symbols
+                    - generic [ref=e2049]: Unused assignment
+              - generic [ref=e2051]:
+                - generic [ref=e2053]:
+                  - checkbox "select issue" [ref=e2054] [cursor=pointer]
+                  - generic [ref=e2055]:
+                    - generic:
+                      - generic:
+                        - img
+                      - generic:
+                        - img
+                - generic [ref=e2058] [cursor=pointer]:
+                  - textbox "High Variable initializer is redundant Unused symbols Unused assignment" [ref=e2059]
+                  - generic [ref=e2060]:
+                    - generic [ref=e2062]:
+                      - tooltip "High" [ref=e2063]:
+                        - generic [ref=e2064]:
+                          - img
+                      - paragraph [ref=e2066]: Variable initializer is redundant
+                    - generic [ref=e2068]: Unused symbols
+                    - generic [ref=e2070]: Unused assignment
+              - generic [ref=e949]:
+                - generic [ref=e950]:
+                  - button "Previous" [ref=e1538] [cursor=pointer]:
+                    - generic [ref=e1539]:
+                      - img
+                    - text: Previous
+                  - button "Next page" [ref=e953] [cursor=pointer]:
+                    - text: Next page
+                    - generic [ref=e954]:
+                      - img
+                - generic [ref=e955]:
+                  - generic [ref=e957]:
+                    - button "1" [ref=e958] [cursor=pointer]
+                    - button "2" [ref=e959] [cursor=pointer]
+                    - button "3" [active] [ref=e960] [cursor=pointer]
+                    - button "4" [ref=e961] [cursor=pointer]
+                    - button "5" [ref=e962] [cursor=pointer]
+                  - combobox "25 per page" [ref=e965] [cursor=pointer]:
+                    - text: 25 per page
+                    - generic [ref=e966]:
+                      - img
+  - contentinfo [ref=e238]:
+    - generic [ref=e239]: © 2020–2026 Qodana
+    - list [ref=e241]:
+      - listitem [ref=e242]:
+        - link "Terms Of Use" [ref=e243] [cursor=pointer]:
+          - /url: https://www.jetbrains.com/legal/agreements/user.html

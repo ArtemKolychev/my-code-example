@@ -1,0 +1,9 @@
+packages:
+  - 'src/gateway'
+  - 'src/frontend'
+  - 'src/shared-types'
+
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - sharp
+  - unrs-resolver

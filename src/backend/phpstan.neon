@@ -1,0 +1,64 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/tomasvotruba/cognitive-complexity/config/extension.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+
+parameters:
+    level: max
+    paths:
+        - app
+    reportUnmatchedIgnoredErrors: false
+    excludes_analyse:
+        - tests
+    cognitive_complexity:
+        class: 25
+        function: 8
+    ignoreErrors:
+        -
+            identifier: cast.string
+            paths:
+                - app/Auth/Infrastructure/Repository
+                - app/Auth/Application/Handler
+                - app/Auth/Providers
+        -
+            identifier: method.notFound
+            paths:
+                - tests/Unit
+        -
+            identifier: method.nonObject
+            paths:
+                - tests/Unit
+
+services:
+    -
+        class: Tests\PHPStan\HandlersMustBeReadonlyRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Tests\PHPStan\ApplicationDtosMustBeFinalReadonlyRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Tests\PHPStan\NoMutableStaticPropertiesRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Tests\PHPStan\NoRepositoryCallInLoopRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Tests\PHPStan\NoErrorSuppressionRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Tests\PHPStan\NoCrossSchemaJoinRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Tests\PHPStan\ActionsMustUseTypedRequestRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Tests\PHPStan\DomainRepositoryMustBeWriteSideRule
+        tags:
+            - phpstan.rules.rule
